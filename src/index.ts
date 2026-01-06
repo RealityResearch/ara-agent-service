@@ -5,6 +5,7 @@ import { ThoughtBroadcaster } from './websocket.js';
 // Railway uses PORT, fallback to WS_PORT or 8080
 const WS_PORT = parseInt(process.env.PORT || process.env.WS_PORT || '8080');
 const ANALYSIS_INTERVAL = parseInt(process.env.ANALYSIS_INTERVAL || '30000');
+const AGENT_ENABLED = process.env.AGENT_ENABLED !== 'false'; // Set to 'false' to pause
 
 async function main() {
   console.log(`
@@ -63,13 +64,18 @@ async function main() {
     process.exit(0);
   });
 
-  // Start the agent
-  try {
-    await agent.start();
-  } catch (error) {
-    console.error('Fatal error:', error);
-    broadcaster.close();
-    process.exit(1);
+  // Start the agent (or idle if disabled)
+  if (AGENT_ENABLED) {
+    try {
+      await agent.start();
+    } catch (error) {
+      console.error('Fatal error:', error);
+      broadcaster.close();
+      process.exit(1);
+    }
+  } else {
+    console.log('⏸️  Agent PAUSED - set AGENT_ENABLED=true to resume');
+    console.log('   Health check still running on port', WS_PORT);
   }
 }
 
