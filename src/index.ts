@@ -2,7 +2,8 @@ import 'dotenv/config';
 import { TradingAgent } from './agent.js';
 import { ThoughtBroadcaster } from './websocket.js';
 
-const WS_PORT = parseInt(process.env.WS_PORT || '8080');
+// Railway uses PORT, fallback to WS_PORT or 8080
+const WS_PORT = parseInt(process.env.PORT || process.env.WS_PORT || '8080');
 const ANALYSIS_INTERVAL = parseInt(process.env.ANALYSIS_INTERVAL || '30000');
 
 async function main() {
