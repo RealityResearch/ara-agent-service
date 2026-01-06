@@ -1,16 +1,35 @@
 import { WebSocketServer, WebSocket } from 'ws';
+import { createServer } from 'http';
 import type { ThoughtMessage } from './agent.js';
 
 export type QuestionHandler = (question: string, from: string) => string;
 
 export class ThoughtBroadcaster {
   private wss: WebSocketServer;
+  private httpServer: ReturnType<typeof createServer>;
   private clients: Set<WebSocket> = new Set();
   private onQuestion: QuestionHandler | null = null;
   private queueLength: () => number = () => 0;
 
   constructor(port: number = 8080) {
-    this.wss = new WebSocketServer({ port });
+    // Create HTTP server for health checks
+    this.httpServer = createServer((req, res) => {
+      if (req.url === '/' || req.url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'ok',
+          service: 'ara-agent-service',
+          clients: this.clients.size,
+          timestamp: Date.now()
+        }));
+      } else {
+        res.writeHead(404);
+        res.end('Not found');
+      }
+    });
+
+    // Attach WebSocket server to HTTP server
+    this.wss = new WebSocketServer({ server: this.httpServer });
 
     this.wss.on('connection', (ws) => {
       console.log('Client connected');
@@ -56,7 +75,10 @@ export class ThoughtBroadcaster {
       });
     });
 
-    console.log(`WebSocket server running on ws://localhost:${port}`);
+    // Start HTTP server
+    this.httpServer.listen(port, () => {
+      console.log(`HTTP + WebSocket server running on port ${port}`);
+    });
   }
 
   setQuestionHandler(handler: QuestionHandler, queueLengthFn: () => number): void {
@@ -80,5 +102,6 @@ export class ThoughtBroadcaster {
 
   close(): void {
     this.wss.close();
+    this.httpServer.close();
   }
 }
