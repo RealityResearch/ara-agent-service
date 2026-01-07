@@ -32,9 +32,9 @@ export interface DiscoveryFilters {
 }
 
 const DEFAULT_FILTERS: DiscoveryFilters = {
-  minLiquidity: 5000, // $5k minimum liquidity
-  minVolume24h: 10000, // $10k minimum 24h volume
-  maxAge: 72, // 3 days old max
+  minLiquidity: 10000, // $10k minimum liquidity (tradeable)
+  minVolume24h: 20000, // $20k minimum 24h volume (active)
+  maxAge: 168, // 7 days old max (catch newer plays)
   minBuys24h: 50, // at least 50 buys
   chainId: 'solana',
 };

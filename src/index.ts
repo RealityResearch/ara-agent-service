@@ -87,18 +87,18 @@ async function main() {
       broadcaster.broadcastDiscoveryThought('Initiating DexScreener scan for potential 2x plays...', 'scanning');
 
       const tokens = await discoverTokens({
-        minLiquidity: 50000,
-        minVolume24h: 100000,
-        maxAge: 48,
-        minBuys24h: 500,
+        minLiquidity: 10000,      // $10k - tradeable liquidity
+        minVolume24h: 20000,      // $20k - shows activity
+        maxAge: 168,              // 7 days - catch newer plays
+        minBuys24h: 50,           // Some interest
         chainId: 'solana'
       });
 
-      // Filter for best opportunities
+      // Light filter - let agent evaluate more opportunities
       const topPicks = tokens.filter(t => {
         const buyRatio = t.txns24h.buys / (t.txns24h.buys + t.txns24h.sells);
         const notDumping = !t.flags.includes('DUMPING');
-        return t.score >= 70 && buyRatio > 0.5 && notDumping;
+        return t.score >= 50 && buyRatio > 0.4 && notDumping;
       });
 
       broadcaster.broadcastDiscoveryThought(
