@@ -14,9 +14,16 @@ import bs58 from 'bs58';
 
 // Network configuration
 const USE_DEVNET = process.env.SOLANA_NETWORK === 'devnet';
+const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
+
+// RPC priority: Helius > Custom RPC > Public (fallback)
 const RPC_ENDPOINT = USE_DEVNET
   ? 'https://api.devnet.solana.com'
-  : (process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com');
+  : HELIUS_API_KEY
+    ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+    : (process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com');
+
+const USING_HELIUS = !!HELIUS_API_KEY && !USE_DEVNET;
 
 // Jupiter API - use public API (has 0.2% fee) or provide your own key
 const JUPITER_API_KEY = process.env.JUPITER_API_KEY;
@@ -87,7 +94,11 @@ export class SolanaWallet {
     this.connection = new Connection(RPC_ENDPOINT, 'confirmed');
     this.config = { ...DEFAULT_CONFIG, ...config };
     console.log(`🌐 Solana network: ${USE_DEVNET ? 'DEVNET' : 'MAINNET'}`);
-    console.log(`   RPC: ${RPC_ENDPOINT}`);
+    if (USING_HELIUS) {
+      console.log(`   RPC: Helius (Premium) ✓`);
+    } else {
+      console.log(`   RPC: ${RPC_ENDPOINT.includes('helius') ? 'Helius' : RPC_ENDPOINT.includes('api.mainnet') ? 'Public (rate limited!)' : 'Custom'}`);
+    }
     if (MOCK_SWAPS) {
       console.log('   ⚠️  Mock swaps enabled (Jupiter not available on devnet)');
     }

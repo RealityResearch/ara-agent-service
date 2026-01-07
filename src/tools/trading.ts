@@ -2,12 +2,16 @@
 // These tools are exposed to Claude via Anthropic's tool_use feature
 
 import { SolanaWallet, TradeResult, SwapQuote } from './wallet.js';
-import { getTokenData, formatPrice, formatUSD } from './market.js';
+import { getTokenData, formatPrice, formatUSD, getSolPrice } from './market.js';
 import { AgentStateManager } from '../state.js';
+import { PositionManager, getTokenByAddress, isKnownTradable, formatTokenListForAgent } from './tokens.js';
 
 // Contract address is optional - agent discovers tokens dynamically
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '';
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
+
+// DexScreener API for price lookups
+const DEXSCREENER_API = 'https://api.dexscreener.com';
 
 export interface ToolDefinition {
   name: string;
@@ -122,16 +126,76 @@ export const TRADING_TOOLS: ToolDefinition[] = [
       required: ['token_address'],
     },
   },
+  {
+    name: 'get_positions',
+    description: 'Get all open positions with current P&L, stop loss, and take profit levels',
+    input_schema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: 'check_stop_loss_take_profit',
+    description: 'Check if any positions have hit stop loss or take profit. Call this regularly to manage risk!',
+    input_schema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: 'set_stop_loss',
+    description: 'Update stop loss percentage for a position',
+    input_schema: {
+      type: 'object',
+      properties: {
+        token_address: {
+          type: 'string',
+          description: 'Token address of the position',
+        },
+        stop_loss_percent: {
+          type: 'number',
+          description: 'Stop loss percentage below entry price (e.g., 15 for 15% below)',
+        },
+      },
+      required: ['token_address', 'stop_loss_percent'],
+    },
+  },
+  {
+    name: 'set_take_profit',
+    description: 'Update take profit percentage for a position',
+    input_schema: {
+      type: 'object',
+      properties: {
+        token_address: {
+          type: 'string',
+          description: 'Token address of the position',
+        },
+        take_profit_percent: {
+          type: 'number',
+          description: 'Take profit percentage above entry price (e.g., 50 for 50% above)',
+        },
+      },
+      required: ['token_address', 'take_profit_percent'],
+    },
+  },
 ];
 
 // Tool executor class
 export class TradingToolExecutor {
   private wallet: SolanaWallet;
   private stateManager: AgentStateManager | null;
+  private positionManager: PositionManager;
 
-  constructor(wallet: SolanaWallet, stateManager?: AgentStateManager) {
+  constructor(wallet: SolanaWallet, stateManager?: AgentStateManager, positionManager?: PositionManager) {
     this.wallet = wallet;
     this.stateManager = stateManager || null;
+    this.positionManager = positionManager || new PositionManager(15, 50); // 15% SL, 50% TP
+  }
+
+  getPositionManager(): PositionManager {
+    return this.positionManager;
   }
 
   async execute(toolName: string, input: Record<string, unknown>): Promise<string> {
@@ -157,6 +221,14 @@ export class TradingToolExecutor {
         return this.checkCanTrade(input.amount as number);
       case 'check_token_tradable':
         return this.checkTokenTradable(input.token_address as string);
+      case 'get_positions':
+        return this.getPositions();
+      case 'check_stop_loss_take_profit':
+        return this.checkStopLossTakeProfit();
+      case 'set_stop_loss':
+        return this.setStopLoss(input.token_address as string, input.stop_loss_percent as number);
+      case 'set_take_profit':
+        return this.setTakeProfit(input.token_address as string, input.take_profit_percent as number);
       default:
         return JSON.stringify({ error: `Unknown tool: ${toolName}` });
     }
@@ -365,7 +437,22 @@ export class TradingToolExecutor {
       });
     }
 
+    // Track position for stop loss / take profit
+    if (result.success && direction === 'buy') {
+      this.positionManager.openPosition(
+        tokenAddress,
+        tokenSymbol,
+        result.outputAmount || 0,
+        tokenPrice,
+        amount // SOL cost basis
+      );
+    } else if (result.success && direction === 'sell') {
+      // Close the position
+      this.positionManager.closePosition(tokenAddress, tokenPrice, result.outputAmount || 0);
+    }
+
     if (result.success) {
+      const position = this.positionManager.getPosition(tokenAddress);
       return JSON.stringify({
         success: true,
         txHash: result.txHash,
@@ -374,6 +461,10 @@ export class TradingToolExecutor {
         priceImpact: result.priceImpact ? `${result.priceImpact.toFixed(2)}%` : null,
         message: `Trade executed! TX: ${result.txHash}`,
         explorerUrl: `https://solscan.io/tx/${result.txHash}`,
+        position: position ? {
+          stopLoss: position.stopLoss?.toFixed(8),
+          takeProfit: position.takeProfit?.toFixed(8),
+        } : null,
       });
     } else {
       return JSON.stringify({
@@ -382,5 +473,154 @@ export class TradingToolExecutor {
         message: `Trade failed: ${result.error}`,
       });
     }
+  }
+
+  // === Position Management Methods ===
+
+  private async getPositions(): Promise<string> {
+    const positions = this.positionManager.getAllPositions();
+
+    if (positions.length === 0) {
+      return JSON.stringify({
+        positions: [],
+        message: 'No open positions',
+        tip: 'Use execute_trade to open a position',
+      });
+    }
+
+    // Update current prices for all positions
+    const updatedPositions = await Promise.all(
+      positions.map(async (pos) => {
+        try {
+          const response = await fetch(
+            `${DEXSCREENER_API}/tokens/v1/solana/${pos.tokenAddress}`,
+            { headers: { 'Accept': 'application/json' } }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            if (Array.isArray(data) && data.length > 0) {
+              const currentPrice = parseFloat(data[0].priceUsd || '0');
+              this.positionManager.updatePrice(pos.tokenAddress, currentPrice);
+              return {
+                ...pos,
+                currentPrice,
+                unrealizedPnlPercent: ((currentPrice - pos.entryPrice) / pos.entryPrice) * 100,
+              };
+            }
+          }
+        } catch {}
+        return pos;
+      })
+    );
+
+    return JSON.stringify({
+      positions: updatedPositions.map(p => ({
+        token: p.tokenSymbol,
+        address: p.tokenAddress,
+        entryPrice: `$${p.entryPrice.toFixed(8)}`,
+        currentPrice: p.currentPrice ? `$${p.currentPrice.toFixed(8)}` : 'unknown',
+        costBasis: `${p.costBasis.toFixed(4)} SOL`,
+        pnlPercent: p.unrealizedPnlPercent ? `${p.unrealizedPnlPercent >= 0 ? '+' : ''}${p.unrealizedPnlPercent.toFixed(2)}%` : '--',
+        stopLoss: p.stopLoss ? `$${p.stopLoss.toFixed(8)}` : 'not set',
+        takeProfit: p.takeProfit ? `$${p.takeProfit.toFixed(8)}` : 'not set',
+        holdTime: this.formatHoldTime(Date.now() - p.entryTime),
+      })),
+      totalPositions: positions.length,
+    });
+  }
+
+  private async checkStopLossTakeProfit(): Promise<string> {
+    const positions = this.positionManager.getAllPositions();
+    const triggers: { token: string; reason: string; action: string }[] = [];
+
+    for (const pos of positions) {
+      try {
+        const response = await fetch(
+          `${DEXSCREENER_API}/tokens/v1/solana/${pos.tokenAddress}`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const currentPrice = parseFloat(data[0].priceUsd || '0');
+            const result = this.positionManager.updatePrice(pos.tokenAddress, currentPrice);
+
+            if (result.shouldSell) {
+              triggers.push({
+                token: pos.tokenSymbol,
+                reason: result.reason === 'stop_loss' ? '🛑 STOP LOSS HIT' : '🎯 TAKE PROFIT HIT',
+                action: `SELL ${pos.amount.toLocaleString()} ${pos.tokenSymbol} NOW!`,
+              });
+            }
+          }
+        }
+      } catch {}
+
+      // Rate limit
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    if (triggers.length > 0) {
+      return JSON.stringify({
+        alert: true,
+        triggers,
+        message: '⚠️ ACTION REQUIRED: Positions have hit stop loss or take profit!',
+        instruction: 'Execute sell trades immediately to lock in gains or cut losses.',
+      });
+    }
+
+    return JSON.stringify({
+      alert: false,
+      message: 'All positions within safe range',
+      positionsChecked: positions.length,
+    });
+  }
+
+  private setStopLoss(tokenAddress: string, stopLossPercent: number): string {
+    const position = this.positionManager.getPosition(tokenAddress);
+    if (!position) {
+      return JSON.stringify({ error: 'No position found for this token' });
+    }
+
+    const newStopLoss = position.entryPrice * (1 - stopLossPercent / 100);
+    position.stopLoss = newStopLoss;
+
+    return JSON.stringify({
+      success: true,
+      token: position.tokenSymbol,
+      entryPrice: `$${position.entryPrice.toFixed(8)}`,
+      newStopLoss: `$${newStopLoss.toFixed(8)}`,
+      percentBelowEntry: `${stopLossPercent}%`,
+    });
+  }
+
+  private setTakeProfit(tokenAddress: string, takeProfitPercent: number): string {
+    const position = this.positionManager.getPosition(tokenAddress);
+    if (!position) {
+      return JSON.stringify({ error: 'No position found for this token' });
+    }
+
+    const newTakeProfit = position.entryPrice * (1 + takeProfitPercent / 100);
+    position.takeProfit = newTakeProfit;
+
+    return JSON.stringify({
+      success: true,
+      token: position.tokenSymbol,
+      entryPrice: `$${position.entryPrice.toFixed(8)}`,
+      newTakeProfit: `$${newTakeProfit.toFixed(8)}`,
+      percentAboveEntry: `${takeProfitPercent}%`,
+    });
+  }
+
+  private formatHoldTime(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ${minutes % 60}m`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h`;
   }
 }

@@ -60,6 +60,9 @@ export class ThoughtBroadcaster {
         timestamp: Date.now()
       }));
 
+      // Send cached market data immediately (for portfolio chart)
+      this.sendMarketDataToClient(ws);
+
       // Handle incoming messages (questions and votes)
       ws.on('message', (data) => {
         try {
@@ -136,6 +139,54 @@ export class ThoughtBroadcaster {
       performance: state.performance,
       evolution: state.evolution,
       tradeHistory: state.tradeHistory,
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  // Store latest market data for new client connections
+  private latestMarketData: { walletSol: number; walletValue: number; timestamp: number } | null = null;
+
+  // Called by agent to update cached market data
+  updateMarketData(walletSol: number, walletValue: number): void {
+    this.latestMarketData = {
+      walletSol,
+      walletValue,
+      timestamp: Date.now()
+    };
+  }
+
+  // Send cached market data to a specific client (on connect)
+  sendMarketDataToClient(client: WebSocket): void {
+    if (this.latestMarketData && client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: 'market_update',
+        content: 'Market data update',
+        timestamp: this.latestMarketData.timestamp,
+        marketData: {
+          walletSol: this.latestMarketData.walletSol,
+          walletValue: this.latestMarketData.walletValue
+        }
+      }));
+    }
+  }
+
+  // Broadcast market update to all clients (for portfolio chart)
+  broadcastMarketUpdate(walletSol: number, walletValue: number): void {
+    this.updateMarketData(walletSol, walletValue);
+
+    const message = JSON.stringify({
+      type: 'market_update',
+      content: 'Market data update',
+      timestamp: Date.now(),
+      marketData: {
+        walletSol,
+        walletValue
+      }
     });
 
     for (const client of this.clients) {

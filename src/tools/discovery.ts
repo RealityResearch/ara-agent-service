@@ -1,7 +1,13 @@
 // Token Discovery Tool - Finds potential plays using DexScreener API
 // Rate limits: 60 req/min for boost endpoints, 300 req/min for pairs
 
+import { KNOWN_TOKENS, getTradableMemecoins, formatTokenListForAgent, isKnownTradable } from './tokens.js';
+
 const DEXSCREENER_API = 'https://api.dexscreener.com';
+
+// Jupiter quote API to verify tradability
+const JUPITER_QUOTE_API = 'https://lite-api.jup.ag/swap/v1/quote';
+const SOL_MINT = 'So11111111111111111111111111111111111111112';
 
 export interface DiscoveredToken {
   address: string;
@@ -388,25 +394,139 @@ export function formatTokenForAgent(token: DiscoveredToken): string {
 `.trim();
 }
 
+/**
+ * Verify a token is tradable on Jupiter by getting a test quote
+ */
+async function verifyJupiterTradable(tokenAddress: string): Promise<boolean> {
+  // Skip check for known tokens
+  if (isKnownTradable(tokenAddress)) return true;
+
+  try {
+    const testAmount = 10000000; // 0.01 SOL
+    const response = await fetch(
+      `${JUPITER_QUOTE_API}?inputMint=${SOL_MINT}&outputMint=${tokenAddress}&amount=${testAmount}&slippageBps=500`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+
+    if (!response.ok) return false;
+
+    const data = await response.json();
+    // Must have a route and no error
+    return !data.error && data.routePlan && data.routePlan.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get real-time data for known tokens from DexScreener
+ */
+export async function getKnownTokenPrices(): Promise<DiscoveredToken[]> {
+  const memecoins = getTradableMemecoins();
+  const tokens: DiscoveredToken[] = [];
+
+  // Batch fetch in groups of 5
+  for (let i = 0; i < memecoins.length; i += 5) {
+    const batch = memecoins.slice(i, i + 5);
+
+    const promises = batch.map(async (token) => {
+      try {
+        const response = await fetch(
+          `${DEXSCREENER_API}/tokens/v1/solana/${token.address}`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        if (!Array.isArray(data) || data.length === 0) return null;
+
+        // Get the best pair (highest liquidity)
+        const pair = data.sort((a: any, b: any) =>
+          (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
+        )[0];
+
+        const discovered: DiscoveredToken = {
+          address: token.address,
+          name: token.name,
+          symbol: token.symbol,
+          description: `Verified tradable ${token.category} token`,
+          chainId: 'solana',
+          priceUsd: parseFloat(pair.priceUsd || '0'),
+          priceChange24h: pair.priceChange?.h24 || 0,
+          volume24h: pair.volume?.h24 || 0,
+          liquidity: pair.liquidity?.usd || 0,
+          marketCap: pair.marketCap || 0,
+          txns24h: {
+            buys: pair.txns?.h24?.buys || 0,
+            sells: pair.txns?.h24?.sells || 0,
+          },
+          pairCreatedAt: pair.pairCreatedAt || 0,
+          url: `https://dexscreener.com/solana/${token.address}`,
+          socials: {},
+          score: 0,
+          flags: ['VERIFIED_TRADABLE'],
+        };
+
+        discovered.score = calculateScore(discovered);
+        return discovered;
+      } catch {
+        return null;
+      }
+    });
+
+    const results = await Promise.all(promises);
+    tokens.push(...results.filter((t): t is DiscoveredToken => t !== null));
+
+    // Rate limit delay
+    if (i + 5 < memecoins.length) {
+      await new Promise(r => setTimeout(r, 200));
+    }
+  }
+
+  // Sort by score
+  tokens.sort((a, b) => b.score - a.score);
+  return tokens;
+}
+
 // Claude tool definitions
 export const DISCOVERY_TOOLS = [
   {
+    name: 'get_known_tokens',
+    description: 'Get a list of VERIFIED TRADABLE tokens with live prices. These tokens are guaranteed to work on Jupiter. USE THIS FIRST before discover_tokens!',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        category: {
+          type: 'string',
+          enum: ['all', 'memecoin', 'defi', 'ai'],
+          description: 'Filter by category (default: all)',
+        },
+      },
+      required: [],
+    },
+  },
+  {
     name: 'discover_tokens',
-    description: 'Scan DexScreener for trending/boosted tokens. Returns scored list of potential plays with volume, liquidity, and risk flags.',
+    description: 'Scan DexScreener for trending/boosted tokens. WARNING: Many tokens here may NOT be tradable on Jupiter. Always verify with check_token_tradable!',
     input_schema: {
       type: 'object' as const,
       properties: {
         min_liquidity: {
           type: 'number',
-          description: 'Minimum liquidity in USD (default: 5000)',
+          description: 'Minimum liquidity in USD (default: 10000)',
         },
         min_volume: {
           type: 'number',
-          description: 'Minimum 24h volume in USD (default: 10000)',
+          description: 'Minimum 24h volume in USD (default: 20000)',
         },
         max_age_hours: {
           type: 'number',
-          description: 'Maximum age in hours since pair creation (default: 72)',
+          description: 'Maximum age in hours since pair creation (default: 168)',
+        },
+        verify_tradable: {
+          type: 'boolean',
+          description: 'If true, verify each token is tradable on Jupiter (slower but safer, default: true)',
         },
       },
       required: [],
@@ -440,7 +560,35 @@ export async function executeDiscoveryTool(
   input: Record<string, unknown>
 ): Promise<string> {
   try {
+    // NEW: Get known tradable tokens with live prices
+    if (toolName === 'get_known_tokens') {
+      const category = input.category as string || 'all';
+      console.log(`📋 Getting known tradable tokens (category: ${category})...`);
+
+      const tokens = await getKnownTokenPrices();
+
+      // Filter by category if specified
+      let filtered = tokens;
+      if (category !== 'all') {
+        const categoryMap: Record<string, string[]> = {
+          memecoin: ['BONK', 'WIF', 'POPCAT', 'MEW', 'PNUT', 'FARTCOIN', 'GOAT', 'CHILLGUY', 'MOODENG'],
+          defi: ['JUP', 'RAY', 'ORCA', 'PYTH', 'JTO'],
+          ai: ['AI16Z', 'GRIFFAIN', 'ZEREBRO'],
+        };
+        const allowedSymbols = categoryMap[category] || [];
+        filtered = tokens.filter(t => allowedSymbols.includes(t.symbol));
+      }
+
+      if (filtered.length === 0) {
+        return `No ${category} tokens found. Try 'all' category.`;
+      }
+
+      const formatted = filtered.map(formatTokenForAgent).join('\n\n---\n\n');
+      return `VERIFIED TRADABLE ${category.toUpperCase()} TOKENS (${filtered.length} found):\n\n${formatted}\n\n⚠️ These tokens are guaranteed to work on Jupiter. Trade with confidence!`;
+    }
+
     if (toolName === 'discover_tokens') {
+      const verifyTradable = input.verify_tradable !== false; // Default true
       const filters: DiscoveryFilters = {
         ...DEFAULT_FILTERS,
         minLiquidity: (input.min_liquidity as number) || DEFAULT_FILTERS.minLiquidity,
@@ -448,14 +596,50 @@ export async function executeDiscoveryTool(
         maxAge: (input.max_age_hours as number) || DEFAULT_FILTERS.maxAge,
       };
 
-      const tokens = await discoverTokens(filters);
+      let tokens = await discoverTokens(filters);
+
+      // Verify tradability on Jupiter if requested
+      if (verifyTradable && tokens.length > 0) {
+        console.log('🔍 Verifying Jupiter tradability...');
+        const verifiedTokens: DiscoveredToken[] = [];
+
+        for (const token of tokens.slice(0, 15)) { // Check top 15
+          // Skip pump.fun tokens that are likely not graduated
+          if (token.address.toLowerCase().endsWith('pump') && !isKnownTradable(token.address)) {
+            // Only add if we verify it works
+            const tradable = await verifyJupiterTradable(token.address);
+            if (tradable) {
+              token.flags.push('JUPITER_VERIFIED');
+              verifiedTokens.push(token);
+            } else {
+              console.log(`  ❌ ${token.symbol} - Not tradable on Jupiter`);
+            }
+          } else if (isKnownTradable(token.address)) {
+            token.flags.push('KNOWN_TRADABLE');
+            verifiedTokens.push(token);
+          } else {
+            // Non-pump token - quick check
+            const tradable = await verifyJupiterTradable(token.address);
+            if (tradable) {
+              token.flags.push('JUPITER_VERIFIED');
+              verifiedTokens.push(token);
+            }
+          }
+
+          // Rate limit
+          await new Promise(r => setTimeout(r, 100));
+        }
+
+        tokens = verifiedTokens;
+        console.log(`✅ ${tokens.length} tokens verified tradable on Jupiter`);
+      }
 
       if (tokens.length === 0) {
-        return 'No tokens found matching the criteria. Try adjusting filters.';
+        return 'No TRADABLE tokens found matching the criteria. Try:\n1. get_known_tokens - for guaranteed tradable tokens\n2. Adjust filters (lower min_liquidity)\n3. Set verify_tradable: false (risky)';
       }
 
       const formatted = tokens.slice(0, 10).map(formatTokenForAgent).join('\n\n---\n\n');
-      return `Found ${tokens.length} potential plays:\n\n${formatted}`;
+      return `Found ${tokens.length} TRADABLE plays:\n\n${formatted}`;
     }
 
     if (toolName === 'search_tokens') {
@@ -470,7 +654,9 @@ export async function executeDiscoveryTool(
       const tokens = await searchForTokens(query, filters);
 
       if (tokens.length === 0) {
-        return `No tokens found for "${query}". Try a different search term.`;
+        // Suggest known tokens if search fails
+        const knownList = Object.keys(KNOWN_TOKENS).join(', ');
+        return `No tokens found for "${query}". DexScreener search can be unreliable.\n\nTry searching for a known token instead: ${knownList}\n\nOr use get_known_tokens for guaranteed tradable tokens!`;
       }
 
       const formatted = tokens.slice(0, 10).map(formatTokenForAgent).join('\n\n---\n\n');

@@ -54,6 +54,12 @@ async function main() {
 
       // Broadcast to connected clients
       broadcaster.broadcast(thought);
+
+      // Also cache market data for portfolio chart (new clients get data immediately)
+      if (thought.type === 'market_update' && thought.marketData) {
+        const { walletSol, walletValue } = thought.marketData as { walletSol: number; walletValue: number };
+        broadcaster.updateMarketData(walletSol, walletValue);
+      }
     },
     stateManager
   );

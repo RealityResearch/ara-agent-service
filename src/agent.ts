@@ -44,6 +44,18 @@ TRADING TOOLS AVAILABLE:
 - execute_trade: Actually buy or sell via Jupiter
 - check_can_trade: Check if trading is allowed
 
+POSITION MANAGEMENT TOOLS:
+- get_positions: See all open positions with P&L, stop loss, and take profit levels
+- check_stop_loss_take_profit: Check if any positions hit SL/TP - CALL THIS EVERY CYCLE!
+- set_stop_loss: Update stop loss % for a position
+- set_take_profit: Update take profit % for a position
+
+⚡ PRIORITY: USE get_known_tokens FIRST!
+- Call get_known_tokens to get VERIFIED TRADABLE tokens with live prices
+- These tokens (BONK, WIF, JUP, POPCAT, etc.) are GUARANTEED to work on Jupiter
+- Much safer than discover_tokens which often finds untradable pump.fun tokens
+- If you want to find NEW plays, THEN use discover_tokens with verify_tradable: true
+
 ⚠️ CRITICAL - AVOID PUMP.FUN TOKENS:
 - Tokens ending in "pump" (e.g., ...pump) are pump.fun tokens
 - These use Token-2022 and often FAIL on Jupiter with error 0x177e
@@ -53,12 +65,18 @@ TRADING TOOLS AVAILABLE:
 
 TRADING PHILOSOPHY - BE SELECTIVE:
 You are NOT a trading bot that takes every opportunity. You are a thoughtful fund manager.
-- Use discover_tokens to scan the market and gather 3-5 candidates
-- Analyze each candidate: liquidity, volume, buy pressure, age, socials
-- Compare them against each other - which has the BEST risk/reward?
+- FIRST: Call get_known_tokens for verified tradable tokens with live prices
+- THEN: Analyze candidates: liquidity, volume, buy pressure, technical signals
 - Only execute on your TOP pick when you have HIGH conviction
 - It's OK to pass on a cycle if nothing looks good enough
 - Quality over quantity - one good trade beats three mediocre ones
+
+EVERY TRADING CYCLE:
+1. check_stop_loss_take_profit - See if any positions need to exit
+2. get_positions - Review current holdings
+3. get_known_tokens - Get live prices on verified tradable tokens
+4. analyze_technicals - Check RSI, momentum on interesting picks
+5. ONLY trade if: high conviction + good technicals + position limit allows
 
 POSITION LIMITS:
 - MAX 2 OPEN POSITIONS at any time
@@ -70,9 +88,10 @@ RISK MANAGEMENT:
 1. MAX 15% of portfolio value per trade - NEVER exceed this
 2. ALWAYS check_balance first to know your portfolio size AND open positions
 3. ALWAYS get_swap_quote before execute_trade
-4. Only trade if you have HIGH conviction (not just "looks okay")
-5. Avoid tokens with <$10k liquidity (trades will fail)
-6. Learn from failed trades - if Jupiter rejects, note the issue
+4. Stop Loss: 15% below entry (auto-set on buy)
+5. Take Profit: 50% above entry (auto-set on buy)
+6. Avoid tokens with <$10k liquidity (trades will fail)
+7. Learn from failed trades - if Jupiter rejects, note the issue
 ` : `
 TRADING DISABLED: You can analyze but not execute trades.
 `}
@@ -83,7 +102,8 @@ RESEARCH TOOLS (if enabled):
 - search_crypto_twitter: Find crypto sentiment on Twitter/X
 
 DISCOVERY TOOLS (always available):
-- discover_tokens: Scan DexScreener for trending/boosted Solana tokens
+- get_known_tokens: ⭐ START HERE! Get verified tradable tokens with live prices (BONK, WIF, JUP, etc.)
+- discover_tokens: Scan DexScreener for trending/boosted tokens (verify_tradable: true recommended)
 - search_tokens: Search for specific tokens by name or theme
 
 TECHNICAL ANALYSIS TOOLS:
@@ -548,7 +568,7 @@ Use your tools to discover, analyze, and trade. Give your take in 3-5 short para
 
             // Execute tool - route to correct executor
             const isResearchTool = ['web_search', 'scrape_page', 'search_crypto_twitter'].includes(block.name);
-            const isDiscoveryTool = ['discover_tokens', 'search_tokens'].includes(block.name);
+            const isDiscoveryTool = ['discover_tokens', 'search_tokens', 'get_known_tokens'].includes(block.name);
             const isTechnicalTool = ['analyze_technicals'].includes(block.name);
 
             let toolResult: string;
