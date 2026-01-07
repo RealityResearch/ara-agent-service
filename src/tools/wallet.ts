@@ -40,11 +40,11 @@ export interface WalletConfig {
 }
 
 export const DEFAULT_CONFIG: WalletConfig = {
-  maxTradeSize: 0.5,         // 0.5 SOL max per trade
-  maxPositions: 3,
-  stopLossPercent: 15,
-  dailyLossLimit: 2,         // 2 SOL max daily loss
-  cooldownMs: 300000,        // 5 min cooldown
+  maxTradeSize: 0.5,         // 0.5 SOL max per trade (15% rule overrides this)
+  maxPositions: 2,           // Max 2 open positions at once
+  stopLossPercent: 20,       // 20% stop loss
+  dailyLossLimit: 1,         // 1 SOL max daily loss (conservative with small portfolio)
+  cooldownMs: 60000,         // 1 min cooldown between trades
 };
 
 export interface TokenBalance {
