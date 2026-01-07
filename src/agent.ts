@@ -5,6 +5,7 @@ import { SolanaWallet } from './tools/wallet.js';
 import { TRADING_TOOLS, TradingToolExecutor } from './tools/trading.js';
 import { RESEARCH_TOOLS, ResearchToolExecutor, getResearchTools } from './tools/research.js';
 import { DISCOVERY_TOOLS, executeDiscoveryTool } from './tools/discovery.js';
+import { TECHNICAL_TOOLS, executeTechnicalTool } from './tools/technical.js';
 import { MemoryManager } from './memory/index.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
@@ -84,6 +85,17 @@ RESEARCH TOOLS (if enabled):
 DISCOVERY TOOLS (always available):
 - discover_tokens: Scan DexScreener for trending/boosted Solana tokens
 - search_tokens: Search for specific tokens by name or theme
+
+TECHNICAL ANALYSIS TOOLS:
+- analyze_technicals: Get RSI, moving averages, volume spikes, momentum for any token
+  Returns: buy/sell/hold recommendation with confidence score
+
+USE TECHNICAL ANALYSIS:
+- ALWAYS run analyze_technicals on a token before trading
+- Look for RSI < 30 (oversold = potential buy) or RSI > 70 (overbought = potential sell)
+- Volume spikes with bullish momentum = strong buy signal
+- Combine TA signals with discovery scores for best entries
+- Don't trade against strong technical signals
 
 USE DISCOVERY TO:
 - Find new potential plays (tokens with momentum)
@@ -470,11 +482,12 @@ Use your tools to discover, analyze, and trade. Give your take in 3-5 short para
     let iterations = 0;
     const maxIterations = 5; // Safety limit
 
-    // Combine trading tools with research tools (if enabled) and discovery tools
+    // Combine trading tools with research tools (if enabled), discovery, and technical analysis
     const allTools = [
       ...TRADING_TOOLS,
       ...getResearchTools(),
       ...DISCOVERY_TOOLS,
+      ...TECHNICAL_TOOLS,
     ] as Anthropic.Tool[];
 
     while (continueLoop && iterations < maxIterations) {
@@ -536,12 +549,15 @@ Use your tools to discover, analyze, and trade. Give your take in 3-5 short para
             // Execute tool - route to correct executor
             const isResearchTool = ['web_search', 'scrape_page', 'search_crypto_twitter'].includes(block.name);
             const isDiscoveryTool = ['discover_tokens', 'search_tokens'].includes(block.name);
+            const isTechnicalTool = ['analyze_technicals'].includes(block.name);
 
             let toolResult: string;
             if (isDiscoveryTool) {
               toolResult = await executeDiscoveryTool(block.name, block.input as Record<string, unknown>);
             } else if (isResearchTool) {
               toolResult = await this.researchExecutor.execute(block.name, block.input as Record<string, unknown>);
+            } else if (isTechnicalTool) {
+              toolResult = await executeTechnicalTool(block.name, block.input as Record<string, unknown>);
             } else {
               toolResult = await this.toolExecutor.execute(block.name, block.input as Record<string, unknown>);
             }
