@@ -1,8 +1,18 @@
-// Market data tools - fetches from pump.fun API
+// Market data tools - fetches from pump.fun + DexScreener APIs
 // Set CONTRACT_ADDRESS and CREATOR_WALLET in .env
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '';
 const CREATOR_WALLET = process.env.CREATOR_WALLET || '';
+
+// DexScreener API - free, no key required, 300 req/min
+const DEXSCREENER_API = 'https://api.dexscreener.com';
+
+// Token addresses for price lookups
+const SOL_ADDRESS = 'So11111111111111111111111111111111111111112';
+
+// Cache for SOL price (refresh every 30s)
+let cachedSolPrice: { price: number; timestamp: number } | null = null;
+const SOL_PRICE_CACHE_TTL = 30000; // 30 seconds
 
 export interface TokenData {
   price: number;
@@ -23,6 +33,54 @@ export interface WalletData {
 // Simulated price state for demo mode
 let demoPrice = 0.00000847;
 let demoTrend = 1;
+
+/**
+ * Fetch SOL price from DexScreener API (free, no key)
+ * Uses caching to avoid rate limits
+ */
+async function fetchSolPrice(): Promise<number> {
+  // Check cache first
+  if (cachedSolPrice && Date.now() - cachedSolPrice.timestamp < SOL_PRICE_CACHE_TTL) {
+    return cachedSolPrice.price;
+  }
+
+  try {
+    // DexScreener tokens endpoint - get SOL price
+    const response = await fetch(`${DEXSCREENER_API}/tokens/v1/solana/${SOL_ADDRESS}`, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'ClaudeInvestments/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      console.error(`DexScreener API error: ${response.status}`);
+      return cachedSolPrice?.price || 180; // Fallback
+    }
+
+    const data = await response.json();
+
+    // DexScreener returns array of pairs, find one with USD price
+    if (Array.isArray(data) && data.length > 0) {
+      // Look for a USDC or USDT pair for accurate USD price
+      const usdPair = data.find((p: { quoteToken?: { symbol?: string } }) =>
+        p.quoteToken?.symbol === 'USDC' || p.quoteToken?.symbol === 'USDT'
+      ) || data[0];
+
+      const price = parseFloat(usdPair.priceUsd || '0');
+      if (price > 0) {
+        cachedSolPrice = { price, timestamp: Date.now() };
+        console.log(`SOL price from DexScreener: $${price.toFixed(2)}`);
+        return price;
+      }
+    }
+
+    return cachedSolPrice?.price || 180;
+  } catch (error) {
+    console.error('Error fetching SOL price:', error);
+    return cachedSolPrice?.price || 180;
+  }
+}
 
 async function fetchPumpFunData(): Promise<TokenData | null> {
   if (!CONTRACT_ADDRESS) {
@@ -50,8 +108,8 @@ async function fetchPumpFunData(): Promise<TokenData | null> {
     const virtualTokenReserves = data.virtual_token_reserves || 1;
     const price = virtualSolReserves / virtualTokenReserves;
 
-    // Get SOL price for USD conversion (approximate)
-    const solPriceUsd = 180; // Could fetch from CoinGecko
+    // Get real SOL price from DexScreener
+    const solPriceUsd = await fetchSolPrice();
 
     return {
       price: price * solPriceUsd,
@@ -90,12 +148,15 @@ async function fetchWalletData(): Promise<WalletData | null> {
     const data = await response.json();
     const solBalance = (data.result?.value || 0) / 1e9;
 
+    // Get real SOL price for USD value
+    const solPriceUsd = await fetchSolPrice();
+
     // For token balance, would need to query token accounts
     // Simplified for now
     return {
       sol: solBalance,
       ara: 50_000_000, // Would need SPL token query
-      usdValue: solBalance * 180
+      usdValue: solBalance * solPriceUsd
     };
   } catch (error) {
     console.error('Error fetching wallet data:', error);
