@@ -39,8 +39,16 @@ TRADING TOOLS AVAILABLE:
 - check_balance: See your wallet balances (SOL + any tokens you hold)
 - get_price: Get price for any token by contract address
 - get_swap_quote: Get a Jupiter quote before trading
+- check_token_tradable: **ALWAYS USE THIS** before execute_trade to verify the token works on Jupiter
 - execute_trade: Actually buy or sell via Jupiter
 - check_can_trade: Check if trading is allowed
+
+⚠️ CRITICAL - AVOID PUMP.FUN TOKENS:
+- Tokens ending in "pump" (e.g., ...pump) are pump.fun tokens
+- These use Token-2022 and often FAIL on Jupiter with error 0x177e
+- BEFORE any trade: call check_token_tradable first!
+- If a token has PUMP_FUN_TOKEN flag, DO NOT attempt to trade it
+- Prefer graduated tokens on Raydium (higher liquidity, Jupiter compatible)
 
 TRADING PHILOSOPHY - BE SELECTIVE:
 You are NOT a trading bot that takes every opportunity. You are a thoughtful fund manager.
@@ -254,19 +262,19 @@ export class TradingAgent {
 
   private formatMarketContext(marketData: MarketData): string {
     return `
-=== CURRENT MARKET DATA ===
-Token: $ARA (Automated Retirement Account)
-Price: ${marketData.priceFormatted} (${marketData.change24h > 0 ? '+' : ''}${marketData.change24h.toFixed(2)}% 24h)
-Market Cap: ${formatUSD(marketData.marketCap)}
-24h Volume: ${formatUSD(marketData.volume24h)}
-Holders: ${marketData.holders.toLocaleString()}
+=== PORTFOLIO STATUS ===
+SOL Balance: ${marketData.walletSol.toFixed(4)} SOL (~${formatUSD(marketData.walletSol * 140)})
+Total Portfolio Value: ${formatUSD(marketData.walletValue)}
 
-=== TREASURY ===
-SOL: ${marketData.walletSol.toFixed(4)} SOL (~${formatUSD(marketData.walletSol * 180)})
-$ARA: ${(marketData.walletAra / 1_000_000).toFixed(2)}M tokens
-Total Value: ${formatUSD(marketData.walletValue)}
+=== YOUR MISSION ===
+You are an autonomous memecoin hunter. Use discover_tokens to find opportunities.
 
-Analyze this. Give your take in 3-5 short paragraphs.
+CRITICAL: Before trading ANY token:
+1. Call check_token_tradable to verify it works on Jupiter
+2. AVOID tokens with PUMP_FUN_TOKEN flag (end in "pump")
+3. Prefer tokens with $10k+ liquidity
+
+Use your tools to discover, analyze, and trade. Give your take in 3-5 short paragraphs.
 `;
   }
 
@@ -346,7 +354,7 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
     this.onThought({
       type: 'status',
-      content: `Analyzing ${marketData.priceFormatted} (${marketData.change24h > 0 ? '+' : ''}${marketData.change24h.toFixed(1)}%)...`,
+      content: `Scanning market opportunities...`,
       timestamp: Date.now(),
       model: MODEL,
       marketData

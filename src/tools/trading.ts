@@ -5,7 +5,8 @@ import { SolanaWallet, TradeResult, SwapQuote } from './wallet.js';
 import { getTokenData, formatPrice, formatUSD } from './market.js';
 import { AgentStateManager } from '../state.js';
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '5X61PKDGt6Fjg6hRxyFiaN61CDToHEeE2gJhDgL9pump';
+// Contract address is optional - agent discovers tokens dynamically
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '';
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 
 export interface ToolDefinition {
@@ -107,6 +108,20 @@ export const TRADING_TOOLS: ToolDefinition[] = [
       required: ['amount'],
     },
   },
+  {
+    name: 'check_token_tradable',
+    description: 'Check if a token can be traded on Jupiter. ALWAYS call this before execute_trade! Pump.fun tokens may not be tradable until they graduate.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        token_address: {
+          type: 'string',
+          description: 'The token contract address to check',
+        },
+      },
+      required: ['token_address'],
+    },
+  },
 ];
 
 // Tool executor class
@@ -140,6 +155,8 @@ export class TradingToolExecutor {
         );
       case 'check_can_trade':
         return this.checkCanTrade(input.amount as number);
+      case 'check_token_tradable':
+        return this.checkTokenTradable(input.token_address as string);
       default:
         return JSON.stringify({ error: `Unknown tool: ${toolName}` });
     }
@@ -245,6 +262,30 @@ export class TradingToolExecutor {
     });
   }
 
+  private async checkTokenTradable(tokenAddress: string): Promise<string> {
+    if (!tokenAddress) {
+      return JSON.stringify({ error: 'token_address is required' });
+    }
+
+    const result = await this.wallet.isTokenTradable(tokenAddress);
+
+    // Also check if it's a pump.fun token
+    const isPumpFun = tokenAddress.toLowerCase().endsWith('pump');
+
+    return JSON.stringify({
+      tokenAddress,
+      tradable: result.tradable,
+      reason: result.reason || (result.tradable ? 'Token is tradable on Jupiter' : 'Unknown issue'),
+      isPumpFunToken: isPumpFun,
+      warning: isPumpFun
+        ? '⚠️ Pump.fun token - may have Token-2022 routing issues. Prefer graduated tokens.'
+        : null,
+      recommendation: result.tradable
+        ? 'You can proceed with trading this token.'
+        : 'DO NOT attempt to trade this token. Find an alternative.',
+    });
+  }
+
   private async executeTrade(
     tokenAddress: string,
     direction: string,
@@ -256,6 +297,17 @@ export class TradingToolExecutor {
     }
 
     console.log(`🔄 Trade request: ${direction} ${amount} SOL for ${tokenAddress.slice(0, 8)}... | Reason: ${reasoning}`);
+
+    // Check if token is tradable on Jupiter FIRST
+    const tradabilityCheck = await this.wallet.isTokenTradable(tokenAddress);
+    if (!tradabilityCheck.tradable) {
+      console.log(`⚠️ Token not tradable: ${tradabilityCheck.reason}`);
+      return JSON.stringify({
+        success: false,
+        error: `TOKEN_NOT_TRADABLE: ${tradabilityCheck.reason}. Find a different token - this one won't work on Jupiter.`,
+        tip: 'Use discover_tokens to find alternatives, then check_token_tradable before trying again.',
+      });
+    }
 
     // Extra safety check
     const canTrade = this.wallet.canTrade(amount);

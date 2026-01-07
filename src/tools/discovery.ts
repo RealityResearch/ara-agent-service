@@ -158,6 +158,11 @@ function calculateScore(token: Partial<DiscoveredToken>): number {
 function generateFlags(token: Partial<DiscoveredToken>): string[] {
   const flags: string[] = [];
 
+  // Pump.fun token detection - these often have Token-2022 issues on Jupiter
+  if (token.address?.toLowerCase().endsWith('pump')) {
+    flags.push('PUMP_FUN_TOKEN');
+  }
+
   // Low liquidity warning
   if ((token.liquidity || 0) < 10000) {
     flags.push('LOW_LIQUIDITY');

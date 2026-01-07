@@ -22,7 +22,7 @@ const RPC_ENDPOINT = USE_DEVNET
 const JUPITER_API_KEY = process.env.JUPITER_API_KEY;
 const JUPITER_API = JUPITER_API_KEY
   ? 'https://api.jup.ag/swap/v1'
-  : 'https://public.jupiterapi.com'; // Public API with 0.2% fee
+  : 'https://lite-api.jup.ag/swap/v1'; // Use lite API (more reliable)
 
 // Mock mode for devnet (Jupiter doesn't work on devnet)
 const MOCK_SWAPS = USE_DEVNET;
@@ -30,6 +30,9 @@ const MOCK_SWAPS = USE_DEVNET;
 // Token addresses
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+// Known problematic token patterns
+const PUMP_FUN_SUFFIX = 'pump'; // Pump.fun tokens end with "pump"
 
 export interface WalletConfig {
   maxTradeSize: number;      // Max SOL per trade
@@ -217,6 +220,60 @@ export class SolanaWallet {
     }
   }
 
+  // Check if a token is likely tradable on Jupiter
+  async isTokenTradable(tokenMint: string): Promise<{ tradable: boolean; reason?: string }> {
+    // Pump.fun tokens that haven't graduated won't work on Jupiter
+    if (tokenMint.toLowerCase().endsWith(PUMP_FUN_SUFFIX)) {
+      // Try to get a quote - if it fails, the token isn't tradable
+      try {
+        const testAmount = 10000000; // 0.01 SOL in lamports
+        const quoteUrl = `${JUPITER_API}/quote?inputMint=${SOL_MINT}&outputMint=${tokenMint}&amount=${testAmount}&slippageBps=1000`;
+        const response = await fetch(quoteUrl, {
+          headers: { 'Accept': 'application/json' },
+        });
+
+        if (!response.ok) {
+          return {
+            tradable: false,
+            reason: 'PUMP_FUN_NOT_GRADUATED: This pump.fun token may not have graduated to Jupiter yet.',
+          };
+        }
+
+        const data = await response.json();
+        if (data.error || !data.routePlan || data.routePlan.length === 0) {
+          return {
+            tradable: false,
+            reason: 'NO_ROUTE: Jupiter cannot find a route for this token. It may not be liquid enough.',
+          };
+        }
+
+        return { tradable: true };
+      } catch (error) {
+        return {
+          tradable: false,
+          reason: `QUOTE_FAILED: Could not verify token tradability: ${error}`,
+        };
+      }
+    }
+
+    // For non-pump.fun tokens, try a quick quote check
+    try {
+      const testAmount = 10000000; // 0.01 SOL in lamports
+      const response = await fetch(
+        `${JUPITER_API}/quote?inputMint=${SOL_MINT}&outputMint=${tokenMint}&amount=${testAmount}&slippageBps=500`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+
+      if (!response.ok) {
+        return { tradable: false, reason: 'NO_JUPITER_ROUTE: Token not available on Jupiter.' };
+      }
+
+      return { tradable: true };
+    } catch {
+      return { tradable: true }; // Assume tradable if we can't check
+    }
+  }
+
   // Check if trade is allowed by safety rules
   canTrade(amountSol: number): { allowed: boolean; reason?: string } {
     // Check wallet loaded
@@ -348,7 +405,7 @@ export class SolanaWallet {
 
       const quoteData = await quoteResponse.json();
 
-      // Get swap transaction
+      // Get swap transaction with memecoin-optimized settings
       const swapResponse = await fetch(`${JUPITER_API}/swap`, {
         method: 'POST',
         headers,
@@ -356,6 +413,14 @@ export class SolanaWallet {
           quoteResponse: quoteData,
           userPublicKey: this.keypair.publicKey.toBase58(),
           wrapAndUnwrapSol: true,
+          // Memecoin trading optimizations
+          dynamicComputeUnitLimit: true, // Auto-estimate compute units
+          prioritizationFeeLamports: {
+            priorityLevelWithMaxLamports: {
+              maxLamports: 2000000, // 0.002 SOL max priority fee
+              priorityLevel: 'veryHigh', // Fast execution for memecoins
+            },
+          },
         }),
       });
 
@@ -408,11 +473,26 @@ export class SolanaWallet {
         priceImpact: parseFloat(quoteData.priceImpactPct),
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Swap error:', error);
+
+      // Parse specific error codes for better debugging
+      let errorMsg = error instanceof Error ? error.message : 'Unknown error';
+
+      // Check for common Jupiter/Solana error codes
+      if (errorMsg.includes('0x177e') || errorMsg.includes('6014')) {
+        errorMsg = 'TOKEN_PROGRAM_MISMATCH: This token may use Token-2022 program. Try a different token or wait for Jupiter support.';
+      } else if (errorMsg.includes('0x1771') || errorMsg.includes('6001')) {
+        errorMsg = 'SLIPPAGE_EXCEEDED: Price moved too much. Try increasing slippage or reducing amount.';
+      } else if (errorMsg.includes('0x1772') || errorMsg.includes('6002')) {
+        errorMsg = 'INSUFFICIENT_FUNDS: Not enough balance to complete swap.';
+      } else if (errorMsg.includes('InsufficientFunds')) {
+        errorMsg = 'INSUFFICIENT_SOL: Not enough SOL for transaction fees.';
+      }
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMsg,
         inputAmount: amountSol,
       };
     }
