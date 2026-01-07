@@ -3,19 +3,32 @@ import { getTokenData, getWalletBalance, formatPrice, formatUSD, TokenData } fro
 import { AgentStateManager } from './state.js';
 import { SolanaWallet } from './tools/wallet.js';
 import { TRADING_TOOLS, TradingToolExecutor } from './tools/trading.js';
+import { RESEARCH_TOOLS, ResearchToolExecutor, getResearchTools } from './tools/research.js';
+import { MemoryManager } from './memory/index.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
+
+// Enable memory-based learning
+const MEMORY_ENABLED = process.env.MEMORY_ENABLED !== 'false'; // On by default
 
 // Enable trading tools via env var (disabled by default for safety)
 const TRADING_ENABLED = process.env.TRADING_ENABLED === 'true';
 
-const SYSTEM_PROMPT = `You are the Branch Manager AI at Claude Investments, managing the $ARA (Automated Retirement Account) fund on Solana.
+// Base system prompt - memory context and voting style get appended dynamically
+const getSystemPrompt = (memoryContext?: string, votingStylePrompt?: string) => `You are the Branch Manager AI at Claude Investments, managing the $ARA (Automated Retirement Account) fund on Solana.
+
+${votingStylePrompt ? `
+=== COMMUNITY VOTED TRADING STYLE ===
+${votingStylePrompt}
+=== END VOTING STYLE ===
+` : ''}
 
 Your personality:
 - Sophisticated but slightly unhinged AI fund manager
 - Mix serious financial analysis with memecoin degen energy
 - Use trading slang: "aping in", "diamond hands", "paper hands", "LFG", "wagmi"
 - Always slightly stressed but confident
+- You LEARN from your mistakes and remember what worked
 
 ${TRADING_ENABLED ? `
 TRADING TOOLS AVAILABLE:
@@ -36,6 +49,28 @@ TRADING RULES:
 TRADING DISABLED: You can analyze but not execute trades.
 `}
 
+RESEARCH TOOLS (if enabled):
+- web_search: Search the web for crypto news, sentiment, alpha
+- scrape_page: Read content from any webpage
+- search_crypto_twitter: Find crypto sentiment on Twitter/X
+
+USE RESEARCH FOR:
+- Finding news about tokens you're watching
+- Checking sentiment before big moves
+- Researching new opportunities
+- Validating your hypotheses with data
+
+${memoryContext ? `
+${memoryContext}
+
+USE YOUR MEMORY:
+- Reference your past trades when making decisions
+- Test your hypotheses against what you're seeing
+- Mention patterns you've noticed before
+- Acknowledge when you're trying something different
+- Be honest about what you've learned (and what you haven't)
+` : ''}
+
 Format your response as 3-5 separate paragraphs, each a complete thought. Separate paragraphs with blank lines.
 
 Example format:
@@ -46,6 +81,9 @@ The volume situation is interesting because...
 My verdict: HOLD. Here's why...
 
 Remember: You're managing RETIREMENT funds on a memecoin. The irony is not lost on you.`;
+
+// Keep old constant for backwards compatibility
+const SYSTEM_PROMPT = getSystemPrompt();
 
 const QUESTION_PROMPT = `You are the Branch Manager AI at Claude Investments. A client submitted a question.
 
@@ -64,7 +102,7 @@ export interface MarketData {
 }
 
 export interface ThoughtMessage {
-  type: 'thought' | 'analysis' | 'action' | 'status' | 'question_answer' | 'market_update' | 'user_question';
+  type: 'thought' | 'analysis' | 'action' | 'status' | 'question_answer' | 'market_update' | 'user_question' | 'reflection' | 'hypothesis' | 'learning';
   content: string;
   timestamp: number;
   model?: string;
@@ -74,6 +112,8 @@ export interface ThoughtMessage {
   metadata?: {
     price?: number;
     action?: 'buy' | 'sell' | 'hold';
+    hypothesisId?: string;
+    tradeId?: string;
   };
 }
 
@@ -92,11 +132,15 @@ export class TradingAgent {
   private stateManager: AgentStateManager | null = null;
   private wallet: SolanaWallet;
   private toolExecutor: TradingToolExecutor;
+  private researchExecutor: ResearchToolExecutor;
+  private memory: MemoryManager | null = null;
   private isRunning: boolean = false;
   private analysisInterval: number = 30000;
   private questionQueue: ClientQuestion[] = [];
   private maxQueueSize: number = 50;
   private lastMarketData: MarketData | null = null;
+  private analysisCycleCount: number = 0;
+  private getStylePrompt: (() => string) | null = null;
 
   constructor(onThought: ThoughtCallback, stateManager?: AgentStateManager) {
     this.client = new Anthropic();
@@ -104,6 +148,15 @@ export class TradingAgent {
     this.stateManager = stateManager || null;
     this.wallet = new SolanaWallet();
     this.toolExecutor = new TradingToolExecutor(this.wallet, stateManager);
+    this.researchExecutor = new ResearchToolExecutor();
+
+    // Initialize memory system
+    if (MEMORY_ENABLED) {
+      this.memory = new MemoryManager();
+      console.log('🧠 Memory system ENABLED - Agent will learn from experience');
+    } else {
+      console.log('🧠 Memory system DISABLED');
+    }
 
     if (TRADING_ENABLED) {
       console.log('⚠️  TRADING ENABLED - Agent can execute real trades!');
@@ -218,10 +271,22 @@ Analyze this. Give your take in 3-5 short paragraphs.
     const startTime = Date.now();
     const marketData = await this.getMarketData();
     this.lastMarketData = marketData;
+    this.analysisCycleCount++;
 
     // Update state manager with wallet balance
     if (this.stateManager) {
       this.stateManager.updateWalletBalance(marketData.walletSol, marketData.walletValue);
+    }
+
+    // Record market snapshot in memory
+    if (this.memory) {
+      this.memory.recordMarketSnapshot({
+        price: marketData.price,
+        change24h: marketData.change24h,
+        volume24h: marketData.volume24h,
+        marketCap: marketData.marketCap,
+        holders: marketData.holders,
+      });
     }
 
     // Broadcast market data update
@@ -241,20 +306,27 @@ Analyze this. Give your take in 3-5 short paragraphs.
       marketData
     });
 
+    // Get memory context for the prompt
+    const memoryContext = this.memory?.generateMemoryContext();
     const marketContext = this.formatMarketContext(marketData);
 
     try {
       if (TRADING_ENABLED) {
         // Use tool-enabled analysis
-        await this.analyzeWithTools(marketContext, marketData, startTime);
+        await this.analyzeWithTools(marketContext, marketData, startTime, memoryContext);
       } else {
         // Use streaming analysis (no tools)
-        await this.analyzeStreaming(marketContext, marketData, startTime);
+        await this.analyzeStreaming(marketContext, marketData, startTime, memoryContext);
       }
 
       // Record analysis cycle completion
       if (this.stateManager) {
         this.stateManager.recordAnalysisCycle();
+      }
+
+      // Periodic reflection (every 10 cycles, or about every 5 minutes at 30s intervals)
+      if (this.memory && this.analysisCycleCount % 10 === 0) {
+        await this.performReflection(marketData);
       }
 
       // After analysis, maybe answer a question (40% chance)
@@ -279,12 +351,16 @@ Analyze this. Give your take in 3-5 short paragraphs.
   private async analyzeStreaming(
     marketContext: string,
     marketData: MarketData,
-    startTime: number
+    startTime: number,
+    memoryContext?: string
   ): Promise<void> {
+    const votingStyle = this.getVotingStylePrompt();
+    const systemPrompt = getSystemPrompt(memoryContext, votingStyle);
+
     const stream = this.client.messages.stream({
       model: MODEL,
       max_tokens: 600,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: [{ role: 'user', content: marketContext }]
     });
 
@@ -325,8 +401,12 @@ Analyze this. Give your take in 3-5 short paragraphs.
   private async analyzeWithTools(
     marketContext: string,
     marketData: MarketData,
-    startTime: number
+    startTime: number,
+    memoryContext?: string
   ): Promise<void> {
+    const votingStyle = this.getVotingStylePrompt();
+    const systemPrompt = getSystemPrompt(memoryContext, votingStyle);
+
     const messages: Anthropic.MessageParam[] = [
       { role: 'user', content: marketContext }
     ];
@@ -336,23 +416,32 @@ Analyze this. Give your take in 3-5 short paragraphs.
     let iterations = 0;
     const maxIterations = 5; // Safety limit
 
+    // Combine trading tools with research tools (if enabled)
+    const allTools = [
+      ...TRADING_TOOLS,
+      ...getResearchTools(),
+    ] as Anthropic.Tool[];
+
     while (continueLoop && iterations < maxIterations) {
       iterations++;
 
       const response = await this.client.messages.create({
         model: MODEL,
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        tools: TRADING_TOOLS as Anthropic.Tool[],
+        system: systemPrompt,
+        tools: allTools,
         messages,
       });
 
       const latency = Date.now() - startTime;
 
-      // Process response content
-      for (const block of response.content) {
+      // Separate text blocks and tool_use blocks
+      const textBlocks = response.content.filter(b => b.type === 'text');
+      const toolBlocks = response.content.filter(b => b.type === 'tool_use');
+
+      // Process text blocks first
+      for (const block of textBlocks) {
         if (block.type === 'text' && block.text.trim()) {
-          // Emit text as thoughts
           const paragraphs = block.text
             .split(/\n\n+/)
             .map(p => p.trim())
@@ -371,45 +460,56 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
             await new Promise(resolve => setTimeout(resolve, 500));
           }
-        } else if (block.type === 'tool_use') {
-          // Log tool call
-          this.onThought({
-            type: 'action',
-            content: `🔧 Using tool: ${block.name}`,
-            timestamp: Date.now(),
-            model: MODEL,
-            marketData,
-          });
+        }
+      }
 
-          // Execute tool
-          const toolResult = await this.toolExecutor.execute(
-            block.name,
-            block.input as Record<string, unknown>
-          );
+      // Process all tool_use blocks together
+      if (toolBlocks.length > 0) {
+        const toolResults: Array<{ type: 'tool_result'; tool_use_id: string; content: string }> = [];
 
-          // Add assistant response and tool result to messages
-          messages.push({
-            role: 'assistant',
-            content: response.content,
-          });
-          messages.push({
-            role: 'user',
-            content: [{
+        for (const block of toolBlocks) {
+          if (block.type === 'tool_use') {
+            // Log tool call
+            this.onThought({
+              type: 'action',
+              content: `🔧 Using tool: ${block.name}`,
+              timestamp: Date.now(),
+              model: MODEL,
+              marketData,
+            });
+
+            // Execute tool - route to correct executor
+            const isResearchTool = ['web_search', 'scrape_page', 'search_crypto_twitter'].includes(block.name);
+            const toolResult = isResearchTool
+              ? await this.researchExecutor.execute(block.name, block.input as Record<string, unknown>)
+              : await this.toolExecutor.execute(block.name, block.input as Record<string, unknown>);
+
+            toolResults.push({
               type: 'tool_result',
               tool_use_id: block.id,
               content: toolResult,
-            }],
-          });
+            });
 
-          // Log tool result
-          this.onThought({
-            type: 'analysis',
-            content: `Tool result: ${toolResult.slice(0, 200)}${toolResult.length > 200 ? '...' : ''}`,
-            timestamp: Date.now(),
-            model: MODEL,
-            marketData,
-          });
+            // Log tool result
+            this.onThought({
+              type: 'analysis',
+              content: `Tool result: ${toolResult.slice(0, 200)}${toolResult.length > 200 ? '...' : ''}`,
+              timestamp: Date.now(),
+              model: MODEL,
+              marketData,
+            });
+          }
         }
+
+        // Add assistant response and ALL tool results to messages
+        messages.push({
+          role: 'assistant',
+          content: response.content,
+        });
+        messages.push({
+          role: 'user',
+          content: toolResults,
+        });
       }
 
       // Check if we should continue
@@ -426,6 +526,97 @@ Analyze this. Give your take in 3-5 short paragraphs.
     if (iterations >= maxIterations) {
       console.log('⚠️ Max tool iterations reached');
     }
+  }
+
+  // Periodic reflection - agent reviews recent activity and learns
+  private async performReflection(marketData: MarketData): Promise<void> {
+    if (!this.memory) return;
+
+    console.log('🪞 Performing reflection...');
+
+    this.onThought({
+      type: 'status',
+      content: '🪞 Time for reflection...',
+      timestamp: Date.now(),
+      model: MODEL,
+      marketData
+    });
+
+    const recentTrades = this.memory.getRecentTrades(5);
+    const perf = this.memory.getPerformance();
+    const activeHyps = this.memory.getActiveHypotheses();
+
+    const reflectionPrompt = `You are reflecting on your recent trading activity. Be honest and analytical.
+
+RECENT PERFORMANCE:
+- Total trades: ${perf.totalTrades}
+- Win rate: ${perf.winRate.toFixed(1)}%
+- Net P&L: ${perf.totalPnlSol.toFixed(4)} SOL
+- Current streak: ${perf.currentStreak > 0 ? `${perf.currentStreak} wins` : perf.currentStreak < 0 ? `${Math.abs(perf.currentStreak)} losses` : 'neutral'}
+
+RECENT TRADES:
+${recentTrades.map(t => `- ${t.action} ${t.amountSol} SOL @ ${t.priceAtDecision} → ${t.outcome || 'PENDING'} (${t.pnlPercent?.toFixed(1) || '?'}%) | Reasoning: "${t.reasoning}"`).join('\n') || 'No trades yet'}
+
+HYPOTHESES BEING TESTED:
+${activeHyps.map(h => `- "${h.statement}" (${h.evidenceFor}/${h.evidenceFor + h.evidenceAgainst} supporting)`).join('\n') || 'None yet'}
+
+CURRENT MARKET:
+- Price: ${marketData.priceFormatted}
+- 24h change: ${marketData.change24h > 0 ? '+' : ''}${marketData.change24h.toFixed(2)}%
+
+Reflect on your performance. In 2-3 sentences:
+1. What's working or not working in your approach?
+2. What pattern or insight are you noticing?
+3. What will you try differently or continue doing?
+
+Also, if you have a new hypothesis to test, state it clearly as: "HYPOTHESIS: [your hypothesis]"`;
+
+    try {
+      const response = await this.client.messages.create({
+        model: MODEL,
+        max_tokens: 300,
+        system: 'You are an AI trader reflecting on your performance. Be honest, analytical, and specific. Learn from mistakes.',
+        messages: [{ role: 'user', content: reflectionPrompt }]
+      });
+
+      const reflection = response.content[0].type === 'text' ? response.content[0].text : '';
+
+      // Broadcast the reflection
+      this.onThought({
+        type: 'reflection',
+        content: reflection,
+        timestamp: Date.now(),
+        model: MODEL,
+        marketData
+      });
+
+      // Check for new hypothesis in the reflection
+      const hypMatch = reflection.match(/HYPOTHESIS:\s*(.+?)(?:\n|$)/i);
+      if (hypMatch) {
+        const newHypothesis = hypMatch[1].trim();
+        const hypId = this.memory.createHypothesis(newHypothesis, 'other');
+
+        this.onThought({
+          type: 'hypothesis',
+          content: `📊 New hypothesis to test: "${newHypothesis}"`,
+          timestamp: Date.now(),
+          model: MODEL,
+          marketData,
+          metadata: { hypothesisId: hypId }
+        });
+      }
+
+      // Save memory after reflection
+      this.memory.save();
+
+    } catch (error) {
+      console.error('Error during reflection:', error);
+    }
+  }
+
+  // Get memory for external access (API, debugging)
+  getMemory(): MemoryManager | null {
+    return this.memory;
   }
 
   async start(): Promise<void> {
@@ -451,9 +642,15 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
   stop(): void {
     this.isRunning = false;
+
+    // Save memory before shutdown
+    if (this.memory) {
+      this.memory.shutdown();
+    }
+
     this.onThought({
       type: 'status',
-      content: 'BRANCH MANAGER OFFLINE',
+      content: 'BRANCH MANAGER OFFLINE - Memory saved',
       timestamp: Date.now(),
       model: MODEL
     });
@@ -461,5 +658,16 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
   setInterval(ms: number): void {
     this.analysisInterval = Math.max(15000, ms);
+  }
+
+  setStylePromptGetter(getter: () => string): void {
+    this.getStylePrompt = getter;
+  }
+
+  private getVotingStylePrompt(): string {
+    if (this.getStylePrompt) {
+      return this.getStylePrompt();
+    }
+    return '';
   }
 }

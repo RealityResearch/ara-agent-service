@@ -42,7 +42,10 @@ async function main() {
         status: '📡',
         question_answer: '💬',
         market_update: '📈',
-        user_question: '❓'
+        user_question: '❓',
+        reflection: '🪞',
+        hypothesis: '🔬',
+        learning: '📚'
       }[thought.type] || '📝';
 
       const latencyStr = thought.latencyMs ? ` [${thought.latencyMs}ms]` : '';
@@ -61,6 +64,15 @@ async function main() {
   );
 
   agent.setInterval(ANALYSIS_INTERVAL);
+
+  // Connect voting system to agent
+  agent.setStylePromptGetter(() => broadcaster.getCurrentStylePrompt());
+
+  // Announce style changes
+  broadcaster.getVotingManager().setStyleChangeCallback((style) => {
+    const config = broadcaster.getVotingManager().getStatus().styleConfig;
+    agent.addQuestion(`The community has spoken! Trading style changed to ${config.emoji} ${config.name}`, 'System');
+  });
 
   // Handle shutdown
   process.on('SIGINT', () => {

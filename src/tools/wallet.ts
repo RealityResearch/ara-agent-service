@@ -12,9 +12,20 @@ import {
 } from '@solana/web3.js';
 import bs58 from 'bs58';
 
-// RPC endpoint - use Helius or other reliable RPC
-const RPC_ENDPOINT = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
-const JUPITER_API = 'https://quote-api.jup.ag/v6';
+// Network configuration
+const USE_DEVNET = process.env.SOLANA_NETWORK === 'devnet';
+const RPC_ENDPOINT = USE_DEVNET
+  ? 'https://api.devnet.solana.com'
+  : (process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com');
+
+// Jupiter API - use public API (has 0.2% fee) or provide your own key
+const JUPITER_API_KEY = process.env.JUPITER_API_KEY;
+const JUPITER_API = JUPITER_API_KEY
+  ? 'https://api.jup.ag/swap/v1'
+  : 'https://public.jupiterapi.com'; // Public API with 0.2% fee
+
+// Mock mode for devnet (Jupiter doesn't work on devnet)
+const MOCK_SWAPS = USE_DEVNET;
 
 // Token addresses
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
@@ -72,7 +83,43 @@ export class SolanaWallet {
   constructor(config: Partial<WalletConfig> = {}) {
     this.connection = new Connection(RPC_ENDPOINT, 'confirmed');
     this.config = { ...DEFAULT_CONFIG, ...config };
+    console.log(`🌐 Solana network: ${USE_DEVNET ? 'DEVNET' : 'MAINNET'}`);
+    console.log(`   RPC: ${RPC_ENDPOINT}`);
+    if (MOCK_SWAPS) {
+      console.log('   ⚠️  Mock swaps enabled (Jupiter not available on devnet)');
+    }
     this.loadWallet();
+  }
+
+  // Airdrop SOL (devnet only)
+  async airdrop(amount: number = 1): Promise<boolean> {
+    if (!USE_DEVNET) {
+      console.error('❌ Airdrop only works on devnet!');
+      return false;
+    }
+    if (!this.keypair) {
+      console.error('❌ Wallet not loaded');
+      return false;
+    }
+
+    try {
+      console.log(`💸 Requesting ${amount} SOL airdrop...`);
+      const signature = await this.connection.requestAirdrop(
+        this.keypair.publicKey,
+        amount * LAMPORTS_PER_SOL
+      );
+      await this.connection.confirmTransaction(signature, 'confirmed');
+      const balance = await this.getSolBalance();
+      console.log(`✅ Airdrop complete! Balance: ${balance.toFixed(4)} SOL`);
+      return true;
+    } catch (error) {
+      console.error('❌ Airdrop failed:', error);
+      return false;
+    }
+  }
+
+  getNetwork(): string {
+    return USE_DEVNET ? 'devnet' : 'mainnet';
   }
 
   private loadWallet(): void {
@@ -178,8 +225,16 @@ export class SolanaWallet {
     slippageBps: number = 100 // 1% default
   ): Promise<SwapQuote | null> {
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (JUPITER_API_KEY) {
+        headers['x-api-key'] = JUPITER_API_KEY;
+      }
+
       const response = await fetch(
-        `${JUPITER_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}`
+        `${JUPITER_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}`,
+        { headers }
       );
 
       if (!response.ok) {
@@ -194,7 +249,7 @@ export class SolanaWallet {
         outputMint,
         inAmount: parseInt(data.inAmount) / LAMPORTS_PER_SOL,
         outAmount: parseInt(data.outAmount) / (outputMint === USDC_MINT ? 1e6 : LAMPORTS_PER_SOL),
-        priceImpactPct: parseFloat(data.priceImpactPct),
+        priceImpactPct: parseFloat(data.priceImpactPct || '0'),
         slippageBps,
       };
     } catch (error) {
@@ -227,18 +282,33 @@ export class SolanaWallet {
       };
     }
 
+    // Mock swap for devnet testing
+    if (MOCK_SWAPS) {
+      return this.executeMockSwap(inputMint, outputMint, amountSol);
+    }
+
     try {
       const amountLamports = Math.floor(amountSol * LAMPORTS_PER_SOL);
 
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (JUPITER_API_KEY) {
+        headers['x-api-key'] = JUPITER_API_KEY;
+      }
+
       // Get quote
       const quoteResponse = await fetch(
-        `${JUPITER_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}`
+        `${JUPITER_API}/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}`,
+        { headers }
       );
 
       if (!quoteResponse.ok) {
+        const errorText = await quoteResponse.text();
+        console.error('Quote error:', errorText);
         return {
           success: false,
-          error: 'Failed to get quote',
+          error: `Failed to get quote: ${errorText}`,
           inputAmount: amountSol,
         };
       }
@@ -248,7 +318,7 @@ export class SolanaWallet {
       // Get swap transaction
       const swapResponse = await fetch(`${JUPITER_API}/swap`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           quoteResponse: quoteData,
           userPublicKey: this.keypair.publicKey.toBase58(),
@@ -313,6 +383,41 @@ export class SolanaWallet {
         inputAmount: amountSol,
       };
     }
+  }
+
+  // Mock swap for devnet testing (simulates Jupiter response)
+  private async executeMockSwap(
+    inputMint: string,
+    outputMint: string,
+    amountSol: number
+  ): Promise<TradeResult> {
+    console.log(`🧪 MOCK SWAP: ${amountSol} SOL (devnet mode)`);
+
+    // Simulate some processing time
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Generate fake output amount (simulate price)
+    // For testing: 1 SOL ≈ 1,000,000 tokens (typical memecoin ratio)
+    const mockPrice = 0.000001; // $0.000001 per token
+    const outputAmount = inputMint === SOL_MINT
+      ? amountSol / mockPrice  // Buying tokens
+      : amountSol * mockPrice; // Selling tokens
+
+    // Fake tx hash
+    const mockTxHash = `MOCK_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+    // Update state
+    this.lastTradeTime = Date.now();
+
+    console.log(`✅ MOCK Swap: ${amountSol} → ${outputAmount.toLocaleString()} | TX: ${mockTxHash}`);
+
+    return {
+      success: true,
+      txHash: mockTxHash,
+      inputAmount: amountSol,
+      outputAmount,
+      priceImpact: 0.5 + Math.random() * 1, // Random 0.5-1.5%
+    };
   }
 
   // Convenience methods

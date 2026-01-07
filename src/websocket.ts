@@ -2,8 +2,10 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
 import type { ThoughtMessage } from './agent.js';
 import type { AgentState } from './state.js';
+import { VotingManager, TradingStyle, TRADING_STYLES } from './voting.js';
 
 export type QuestionHandler = (question: string, from: string) => string;
+export type VoteHandler = (visitorId: string, style: TradingStyle) => { success: boolean; message: string };
 
 export class ThoughtBroadcaster {
   private wss: WebSocketServer;
@@ -11,16 +13,22 @@ export class ThoughtBroadcaster {
   private clients: Set<WebSocket> = new Set();
   private onQuestion: QuestionHandler | null = null;
   private queueLength: () => number = () => 0;
+  private votingManager: VotingManager;
 
   constructor(port: number = 8080) {
+    // Initialize voting system
+    this.votingManager = new VotingManager();
+
     // Create HTTP server for health checks
     this.httpServer = createServer((req, res) => {
       if (req.url === '/' || req.url === '/health') {
+        const voteStatus = this.votingManager.getStatus();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           status: 'ok',
           service: 'ara-agent-service',
           clients: this.clients.size,
+          voting: voteStatus,
           timestamp: Date.now()
         }));
       } else {
@@ -36,15 +44,23 @@ export class ThoughtBroadcaster {
       console.log('Client connected');
       this.clients.add(ws);
 
-      // Send welcome message
+      // Send welcome message with voting status
+      const voteStatus = this.votingManager.getStatus();
       ws.send(JSON.stringify({
         type: 'status',
-        content: 'Connected to Claude Investments Branch Manager',
+        content: `Connected to Claude Investments Branch Manager | Mode: ${voteStatus.styleConfig.emoji} ${voteStatus.styleConfig.name}`,
         timestamp: Date.now(),
         model: 'claude-sonnet-4-20250514'
       }));
 
-      // Handle incoming messages (questions)
+      // Send current voting state
+      ws.send(JSON.stringify({
+        type: 'vote_status',
+        ...voteStatus,
+        timestamp: Date.now()
+      }));
+
+      // Handle incoming messages (questions and votes)
       ws.on('message', (data) => {
         try {
           const message = JSON.parse(data.toString());
@@ -59,6 +75,22 @@ export class ThoughtBroadcaster {
               questionId: id,
               timestamp: Date.now()
             }));
+          }
+
+          // Handle votes
+          if (message.type === 'vote' && message.visitorId && message.style) {
+            const result = this.votingManager.vote(message.visitorId, message.style as TradingStyle);
+
+            // Send vote confirmation to voter
+            ws.send(JSON.stringify({
+              type: 'vote_confirmed',
+              success: result.success,
+              message: result.message,
+              timestamp: Date.now()
+            }));
+
+            // Broadcast updated vote counts to all clients
+            this.broadcastVoteStatus();
           }
         } catch (error) {
           console.error('Error parsing client message:', error);
@@ -115,6 +147,29 @@ export class ThoughtBroadcaster {
 
   getClientCount(): number {
     return this.clients.size;
+  }
+
+  broadcastVoteStatus(): void {
+    const status = this.votingManager.getStatus();
+    const message = JSON.stringify({
+      type: 'vote_status',
+      ...status,
+      timestamp: Date.now()
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  getVotingManager(): VotingManager {
+    return this.votingManager;
+  }
+
+  getCurrentStylePrompt(): string {
+    return this.votingManager.getStylePrompt();
   }
 
   close(): void {
