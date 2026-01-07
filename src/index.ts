@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { TradingAgent } from './agent.js';
 import { ThoughtBroadcaster } from './websocket.js';
 import { AgentStateManager } from './state.js';
+import { discoverTokens, DiscoveredToken } from './tools/discovery.js';
 
 // Railway uses PORT, fallback to WS_PORT or 8080
 const WS_PORT = parseInt(process.env.PORT || process.env.WS_PORT || '8080');
@@ -73,6 +74,83 @@ async function main() {
     const config = broadcaster.getVotingManager().getStatus().styleConfig;
     agent.addQuestion(`The community has spoken! Trading style changed to ${config.emoji} ${config.name}`, 'System');
   });
+
+  // Discovery Scanner - runs every 2 minutes
+  const DISCOVERY_INTERVAL = parseInt(process.env.DISCOVERY_INTERVAL || '120000');
+  let lastDiscoveryTokens: DiscoveredToken[] = [];
+
+  async function runDiscoveryScan() {
+    if (!AGENT_ENABLED) return;
+
+    try {
+      broadcaster.broadcastDiscoveryScanning();
+      broadcaster.broadcastDiscoveryThought('Initiating DexScreener scan for potential 2x plays...', 'scanning');
+
+      const tokens = await discoverTokens({
+        minLiquidity: 50000,
+        minVolume24h: 100000,
+        maxAge: 48,
+        minBuys24h: 500,
+        chainId: 'solana'
+      });
+
+      // Filter for best opportunities
+      const topPicks = tokens.filter(t => {
+        const buyRatio = t.txns24h.buys / (t.txns24h.buys + t.txns24h.sells);
+        const notDumping = !t.flags.includes('DUMPING');
+        return t.score >= 70 && buyRatio > 0.5 && notDumping;
+      });
+
+      broadcaster.broadcastDiscoveryThought(
+        `Scan complete. Found ${tokens.length} tokens, ${topPicks.length} passing strict filters.`,
+        'analysis'
+      );
+
+      // Broadcast discovery results
+      broadcaster.broadcastDiscoveryUpdate(topPicks);
+
+      // Check for new high-score tokens
+      const newHighScorers = topPicks.filter(t => {
+        const wasPresent = lastDiscoveryTokens.find(lt => lt.address === t.address);
+        return t.score >= 90 && !wasPresent;
+      });
+
+      for (const token of newHighScorers) {
+        const buyRatio = Math.round(token.txns24h.buys / (token.txns24h.buys + token.txns24h.sells) * 100);
+        broadcaster.broadcastDiscoveryThought(
+          `🚨 NEW HIGH-SCORE TOKEN: ${token.symbol} (${token.score}/100) - ${token.priceChange24h >= 0 ? '+' : ''}${token.priceChange24h.toFixed(0)}% 24h, ${buyRatio}% buys, $${(token.liquidity/1000).toFixed(0)}K liq`,
+          'alert'
+        );
+      }
+
+      // Analyze top pick
+      if (topPicks.length > 0) {
+        const top = topPicks[0];
+        const volLiqRatio = (top.volume24h / top.liquidity).toFixed(1);
+        const buyRatio = Math.round(top.txns24h.buys / (top.txns24h.buys + top.txns24h.sells) * 100);
+
+        broadcaster.broadcastDiscoveryThought(
+          `Top opportunity: ${top.symbol} - Score ${top.score}, ${volLiqRatio}x vol/liq turnover, ${buyRatio}% buy pressure. ${top.flags.length > 0 ? 'Flags: ' + top.flags.join(', ') : 'No warning flags.'}`,
+          'decision'
+        );
+      }
+
+      lastDiscoveryTokens = topPicks;
+
+    } catch (error) {
+      console.error('Discovery scan error:', error);
+      broadcaster.broadcastDiscoveryThought(
+        `Scan failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'alert'
+      );
+    }
+  }
+
+  // Run first scan after 10 seconds, then every DISCOVERY_INTERVAL
+  setTimeout(() => {
+    runDiscoveryScan();
+    setInterval(runDiscoveryScan, DISCOVERY_INTERVAL);
+  }, 10000);
 
   // Handle shutdown
   process.on('SIGINT', () => {

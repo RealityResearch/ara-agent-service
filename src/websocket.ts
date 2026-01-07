@@ -172,6 +172,49 @@ export class ThoughtBroadcaster {
     return this.votingManager.getStylePrompt();
   }
 
+  // Discovery broadcasts
+  broadcastDiscoveryScanning(): void {
+    const message = JSON.stringify({
+      type: 'discovery_scanning',
+      timestamp: Date.now()
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  broadcastDiscoveryUpdate(tokens: any[]): void {
+    const message = JSON.stringify({
+      type: 'discovery_update',
+      tokens,
+      timestamp: Date.now()
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  broadcastDiscoveryThought(content: string, thoughtType: 'scanning' | 'analysis' | 'alert' | 'decision'): void {
+    const message = JSON.stringify({
+      type: 'discovery_thought',
+      content,
+      thoughtType,
+      timestamp: Date.now()
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
   close(): void {
     this.wss.close();
     this.httpServer.close();
