@@ -222,7 +222,7 @@ export class SolanaWallet {
     inputMint: string,
     outputMint: string,
     amountLamports: number,
-    slippageBps: number = 100 // 1% default
+    slippageBps: number = 500 // 5% default for memecoins
   ): Promise<SwapQuote | null> {
     try {
       const headers: Record<string, string> = {
@@ -262,7 +262,7 @@ export class SolanaWallet {
     inputMint: string,
     outputMint: string,
     amountSol: number,
-    slippageBps: number = 100
+    slippageBps: number = 500 // 5% for memecoins
   ): Promise<TradeResult> {
     // Safety check
     const canTradeResult = this.canTrade(amountSol);
