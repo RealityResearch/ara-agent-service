@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
 import type { ThoughtMessage } from './agent.js';
+import type { AgentState } from './state.js';
 
 export type QuestionHandler = (question: string, from: string) => string;
 
@@ -88,6 +89,22 @@ export class ThoughtBroadcaster {
 
   broadcast(thought: ThoughtMessage): void {
     const message = JSON.stringify(thought);
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  broadcastState(state: AgentState): void {
+    const message = JSON.stringify({
+      type: 'state_update',
+      timestamp: Date.now(),
+      performance: state.performance,
+      evolution: state.evolution,
+      tradeHistory: state.tradeHistory,
+    });
 
     for (const client of this.clients) {
       if (client.readyState === WebSocket.OPEN) {

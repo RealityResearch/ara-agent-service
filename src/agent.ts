@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getTokenData, getWalletBalance, formatPrice, formatUSD, TokenData } from './tools/market.js';
+import { AgentStateManager } from './state.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
 
@@ -64,15 +65,17 @@ export type ThoughtCallback = (thought: ThoughtMessage) => void;
 export class TradingAgent {
   private client: Anthropic;
   private onThought: ThoughtCallback;
+  private stateManager: AgentStateManager | null = null;
   private isRunning: boolean = false;
   private analysisInterval: number = 30000;
   private questionQueue: ClientQuestion[] = [];
   private maxQueueSize: number = 50;
   private lastMarketData: MarketData | null = null;
 
-  constructor(onThought: ThoughtCallback) {
+  constructor(onThought: ThoughtCallback, stateManager?: AgentStateManager) {
     this.client = new Anthropic();
     this.onThought = onThought;
+    this.stateManager = stateManager || null;
   }
 
   addQuestion(question: string, from: string): string {
@@ -179,6 +182,11 @@ Analyze this. Give your take in 3-5 short paragraphs.
     const marketData = await this.getMarketData();
     this.lastMarketData = marketData;
 
+    // Update state manager with wallet balance
+    if (this.stateManager) {
+      this.stateManager.updateWalletBalance(marketData.walletSol, marketData.walletValue);
+    }
+
     // Broadcast market data update
     this.onThought({
       type: 'market_update',
@@ -236,6 +244,11 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
         // Small delay between thoughts for readability
         await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
+      // Record analysis cycle completion
+      if (this.stateManager) {
+        this.stateManager.recordAnalysisCycle();
       }
 
       // After analysis, maybe answer a question (40% chance)

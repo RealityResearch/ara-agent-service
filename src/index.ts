@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { TradingAgent } from './agent.js';
 import { ThoughtBroadcaster } from './websocket.js';
+import { AgentStateManager } from './state.js';
 
 // Railway uses PORT, fallback to WS_PORT or 8080
 const WS_PORT = parseInt(process.env.PORT || process.env.WS_PORT || '8080');
@@ -22,25 +23,36 @@ async function main() {
   // Initialize WebSocket broadcaster
   const broadcaster = new ThoughtBroadcaster(WS_PORT);
 
-  // Initialize trading agent
-  const agent = new TradingAgent((thought) => {
-    // Log to console with emoji prefix
-    const prefix = {
-      thought: '💭',
-      analysis: '📊',
-      action: '⚡',
-      status: '📡',
-      question_answer: '💬',
-      market_update: '📈',
-      user_question: '❓'
-    }[thought.type] || '📝';
+  // Initialize state manager
+  const stateManager = new AgentStateManager();
 
-    const latencyStr = thought.latencyMs ? ` [${thought.latencyMs}ms]` : '';
-    console.log(`${prefix}${latencyStr} ${thought.content.slice(0, 80)}${thought.content.length > 80 ? '...' : ''}`);
-
-    // Broadcast to connected clients
-    broadcaster.broadcast(thought);
+  // Wire state updates to broadcaster
+  stateManager.setUpdateCallback((state) => {
+    broadcaster.broadcastState(state);
   });
+
+  // Initialize trading agent with state manager
+  const agent = new TradingAgent(
+    (thought) => {
+      // Log to console with emoji prefix
+      const prefix = {
+        thought: '💭',
+        analysis: '📊',
+        action: '⚡',
+        status: '📡',
+        question_answer: '💬',
+        market_update: '📈',
+        user_question: '❓'
+      }[thought.type] || '📝';
+
+      const latencyStr = thought.latencyMs ? ` [${thought.latencyMs}ms]` : '';
+      console.log(`${prefix}${latencyStr} ${thought.content.slice(0, 80)}${thought.content.length > 80 ? '...' : ''}`);
+
+      // Broadcast to connected clients
+      broadcaster.broadcast(thought);
+    },
+    stateManager
+  );
 
   // Wire up question handler
   broadcaster.setQuestionHandler(
