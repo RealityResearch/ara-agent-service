@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { getTokenData, getWalletBalance, formatPrice, formatUSD, TokenData } from './tools/market.js';
+import { getTokenData, formatPrice, formatUSD, TokenData, getSolPrice } from './tools/market.js';
 import { AgentStateManager } from './state.js';
 import { SolanaWallet } from './tools/wallet.js';
 import { TRADING_TOOLS, TradingToolExecutor } from './tools/trading.js';
@@ -203,7 +203,23 @@ export class TradingAgent {
 
   private async getMarketData(): Promise<MarketData> {
     const token = await getTokenData();
-    const wallet = await getWalletBalance();
+
+    // Use the agent's actual wallet for balance (not CREATOR_WALLET)
+    let walletSol = 0;
+    let walletAra = 0;
+
+    if (this.wallet.isReady()) {
+      walletSol = await this.wallet.getSolBalance();
+      // Get $ARA token balance
+      const araAddress = process.env.CONTRACT_ADDRESS || '';
+      if (araAddress) {
+        walletAra = await this.wallet.getTokenBalance(araAddress);
+      }
+    }
+
+    // Calculate USD value (SOL + ARA) with real SOL price
+    const solPriceUsd = await getSolPrice();
+    const walletValue = (walletSol * solPriceUsd) + (walletAra * token.price);
 
     return {
       price: token.price,
@@ -212,9 +228,9 @@ export class TradingAgent {
       volume24h: token.volume24h,
       marketCap: token.marketCap,
       holders: token.holders,
-      walletSol: wallet.sol,
-      walletAra: wallet.ara,
-      walletValue: wallet.usdValue
+      walletSol,
+      walletAra,
+      walletValue
     };
   }
 
@@ -284,9 +300,10 @@ Analyze this. Give your take in 3-5 short paragraphs.
     this.lastMarketData = marketData;
     this.analysisCycleCount++;
 
-    // Update state manager with wallet balance
+    // Update state manager with wallet balance and address
     if (this.stateManager) {
-      this.stateManager.updateWalletBalance(marketData.walletSol, marketData.walletValue);
+      const walletAddress = this.wallet.getPublicKey();
+      this.stateManager.updateWalletBalance(marketData.walletSol, marketData.walletValue, walletAddress || undefined);
     }
 
     // Record market snapshot in memory

@@ -11,6 +11,7 @@ export interface PerformanceData {
   totalPnlUsd: number;
   walletBalanceSol: number;
   walletBalanceUsd: number;
+  walletAddress: string | null;  // Agent's trading wallet address
   openPositions: number;
   maxPositions: number;
   avgHoldTime: string;
@@ -120,6 +121,7 @@ export class AgentStateManager {
         totalPnlUsd: 0,
         walletBalanceSol: 0,
         walletBalanceUsd: 0,
+        walletAddress: null,
         openPositions: 0,
         maxPositions: 3,
         avgHoldTime: '—',
@@ -206,9 +208,12 @@ export class AgentStateManager {
   }
 
   // Update wallet balance from market data
-  updateWalletBalance(solBalance: number, usdValue: number): void {
+  updateWalletBalance(solBalance: number, usdValue: number, walletAddress?: string): void {
     this.state.performance.walletBalanceSol = solBalance;
     this.state.performance.walletBalanceUsd = usdValue;
+    if (walletAddress) {
+      this.state.performance.walletAddress = walletAddress;
+    }
     this.notifyUpdate();
   }
 

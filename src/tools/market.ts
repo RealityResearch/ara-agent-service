@@ -202,6 +202,11 @@ export async function getTokenData(): Promise<TokenData> {
   return getDemoData();
 }
 
+// Export SOL price function for external use
+export async function getSolPrice(): Promise<number> {
+  return fetchSolPrice();
+}
+
 export async function getWalletBalance(): Promise<WalletData> {
   const liveData = await fetchWalletData();
   if (liveData) {
