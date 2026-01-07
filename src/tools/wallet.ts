@@ -184,6 +184,39 @@ export class SolanaWallet {
     }
   }
 
+  // Get all token positions the wallet holds
+  async getAllTokenBalances(): Promise<Array<{ mint: string; symbol: string; balance: number }>> {
+    if (!this.keypair) return [];
+
+    try {
+      const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(
+        this.keypair.publicKey,
+        { programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') }
+      );
+
+      const positions: Array<{ mint: string; symbol: string; balance: number }> = [];
+
+      for (const account of tokenAccounts.value) {
+        const info = account.account.data.parsed.info;
+        const balance = parseFloat(info.tokenAmount?.uiAmountString || '0');
+
+        // Only include tokens with non-zero balance
+        if (balance > 0) {
+          positions.push({
+            mint: info.mint,
+            symbol: info.mint.slice(0, 6) + '...', // Truncated address as symbol fallback
+            balance,
+          });
+        }
+      }
+
+      return positions;
+    } catch (error) {
+      console.error('Error getting all token balances:', error);
+      return [];
+    }
+  }
+
   // Check if trade is allowed by safety rules
   canTrade(amountSol: number): { allowed: boolean; reason?: string } {
     // Check wallet loaded

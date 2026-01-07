@@ -22,7 +22,7 @@ export interface ToolDefinition {
 export const TRADING_TOOLS: ToolDefinition[] = [
   {
     name: 'check_balance',
-    description: 'Check the current SOL and token balance in the trading wallet',
+    description: 'Check your SOL balance and all token positions in the wallet',
     input_schema: {
       type: 'object',
       properties: {},
@@ -31,42 +31,55 @@ export const TRADING_TOOLS: ToolDefinition[] = [
   },
   {
     name: 'get_price',
-    description: 'Get the current price and market data for $ARA token',
+    description: 'Get price and market data for any Solana token by contract address',
     input_schema: {
       type: 'object',
-      properties: {},
-      required: [],
+      properties: {
+        token_address: {
+          type: 'string',
+          description: 'The token contract address (mint) to get price for',
+        },
+      },
+      required: ['token_address'],
     },
   },
   {
     name: 'get_swap_quote',
-    description: 'Get a quote for swapping SOL to $ARA or vice versa without executing',
+    description: 'Get a quote for buying/selling any token. Always call this before execute_trade.',
     input_schema: {
       type: 'object',
       properties: {
+        token_address: {
+          type: 'string',
+          description: 'The token contract address (mint) to trade',
+        },
         direction: {
           type: 'string',
           enum: ['buy', 'sell'],
-          description: 'buy = SOL to $ARA, sell = $ARA to SOL',
+          description: 'buy = SOL to token, sell = token to SOL',
         },
         amount: {
           type: 'number',
           description: 'Amount in SOL (for buy) or number of tokens (for sell)',
         },
       },
-      required: ['direction', 'amount'],
+      required: ['token_address', 'direction', 'amount'],
     },
   },
   {
     name: 'execute_trade',
-    description: 'Execute a swap trade. Use with caution - this spends real money! Always check balance and quote first.',
+    description: 'Execute a swap trade. REAL MONEY! Always get quote first. Max 15% of portfolio.',
     input_schema: {
       type: 'object',
       properties: {
+        token_address: {
+          type: 'string',
+          description: 'The token contract address (mint) to trade',
+        },
         direction: {
           type: 'string',
           enum: ['buy', 'sell'],
-          description: 'buy = SOL to $ARA, sell = $ARA to SOL',
+          description: 'buy = SOL to token, sell = token to SOL',
         },
         amount: {
           type: 'number',
@@ -77,7 +90,7 @@ export const TRADING_TOOLS: ToolDefinition[] = [
           description: 'Your reasoning for this trade (will be logged)',
         },
       },
-      required: ['direction', 'amount', 'reasoning'],
+      required: ['token_address', 'direction', 'amount', 'reasoning'],
     },
   },
   {
@@ -111,11 +124,16 @@ export class TradingToolExecutor {
       case 'check_balance':
         return this.checkBalance();
       case 'get_price':
-        return this.getPrice();
+        return this.getPrice(input.token_address as string);
       case 'get_swap_quote':
-        return this.getSwapQuote(input.direction as string, input.amount as number);
+        return this.getSwapQuote(
+          input.token_address as string,
+          input.direction as string,
+          input.amount as number
+        );
       case 'execute_trade':
         return this.executeTrade(
+          input.token_address as string,
           input.direction as string,
           input.amount as number,
           input.reasoning as string
@@ -129,40 +147,65 @@ export class TradingToolExecutor {
 
   private async checkBalance(): Promise<string> {
     const solBalance = await this.wallet.getSolBalance();
-    const araBalance = await this.wallet.getTokenBalance(CONTRACT_ADDRESS);
-    const tokenData = await getTokenData();
 
-    const araValue = araBalance * tokenData.price;
+    // Get all token accounts the wallet holds
+    const tokenPositions = await this.wallet.getAllTokenBalances();
 
     return JSON.stringify({
       sol: {
         balance: solBalance.toFixed(4),
         usdValue: formatUSD(solBalance * 140), // Approximate SOL price
       },
-      ara: {
-        balance: araBalance.toLocaleString(),
-        usdValue: formatUSD(araValue),
-      },
-      totalUsdValue: formatUSD(solBalance * 140 + araValue),
+      positions: tokenPositions,
+      totalPositions: tokenPositions.length,
       walletAddress: this.wallet.getPublicKey(),
+      note: 'Use get_price with token_address to check specific token values',
     });
   }
 
-  private async getPrice(): Promise<string> {
-    const tokenData = await getTokenData();
+  private async getPrice(tokenAddress: string): Promise<string> {
+    if (!tokenAddress) {
+      return JSON.stringify({ error: 'token_address is required' });
+    }
 
-    return JSON.stringify({
-      price: formatPrice(tokenData.price),
-      change24h: `${tokenData.priceChange24h > 0 ? '+' : ''}${tokenData.priceChange24h.toFixed(2)}%`,
-      volume24h: formatUSD(tokenData.volume24h),
-      marketCap: formatUSD(tokenData.marketCap),
-      holders: tokenData.holders,
-    });
+    try {
+      // Fetch from DexScreener
+      const response = await fetch(
+        `https://api.dexscreener.com/tokens/v1/solana/${tokenAddress}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+
+      if (!response.ok) {
+        return JSON.stringify({ error: 'Failed to fetch token data' });
+      }
+
+      const data = await response.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        return JSON.stringify({ error: 'Token not found on DexScreener' });
+      }
+
+      const pair = data[0];
+      return JSON.stringify({
+        token: pair.baseToken?.symbol || 'Unknown',
+        address: tokenAddress,
+        price: pair.priceUsd || '0',
+        change24h: `${pair.priceChange?.h24 > 0 ? '+' : ''}${(pair.priceChange?.h24 || 0).toFixed(2)}%`,
+        volume24h: formatUSD(pair.volume?.h24 || 0),
+        liquidity: formatUSD(pair.liquidity?.usd || 0),
+        marketCap: formatUSD(pair.marketCap || 0),
+      });
+    } catch (error) {
+      return JSON.stringify({ error: `Failed to get price: ${error}` });
+    }
   }
 
-  private async getSwapQuote(direction: string, amount: number): Promise<string> {
-    const inputMint = direction === 'buy' ? SOL_MINT : CONTRACT_ADDRESS;
-    const outputMint = direction === 'buy' ? CONTRACT_ADDRESS : SOL_MINT;
+  private async getSwapQuote(tokenAddress: string, direction: string, amount: number): Promise<string> {
+    if (!tokenAddress) {
+      return JSON.stringify({ error: 'token_address is required' });
+    }
+
+    const inputMint = direction === 'buy' ? SOL_MINT : tokenAddress;
+    const outputMint = direction === 'buy' ? tokenAddress : SOL_MINT;
 
     // Convert to lamports (assuming SOL input for now)
     const amountLamports = Math.floor(amount * 1e9);
@@ -203,11 +246,16 @@ export class TradingToolExecutor {
   }
 
   private async executeTrade(
+    tokenAddress: string,
     direction: string,
     amount: number,
     reasoning: string
   ): Promise<string> {
-    console.log(`🔄 Trade request: ${direction} ${amount} SOL | Reason: ${reasoning}`);
+    if (!tokenAddress) {
+      return JSON.stringify({ error: 'token_address is required' });
+    }
+
+    console.log(`🔄 Trade request: ${direction} ${amount} SOL for ${tokenAddress.slice(0, 8)}... | Reason: ${reasoning}`);
 
     // Extra safety check
     const canTrade = this.wallet.canTrade(amount);
@@ -221,23 +269,38 @@ export class TradingToolExecutor {
     let result: TradeResult;
 
     if (direction === 'buy') {
-      result = await this.wallet.buyToken(CONTRACT_ADDRESS, amount);
+      result = await this.wallet.buyToken(tokenAddress, amount);
     } else {
-      // For selling, amount is in tokens - simplified for now
-      result = await this.wallet.sellToken(CONTRACT_ADDRESS, amount);
+      // For selling, amount is in tokens
+      result = await this.wallet.sellToken(tokenAddress, amount);
     }
+
+    // Get token info for recording
+    let tokenSymbol = tokenAddress.slice(0, 6);
+    let tokenPrice = 0;
+    try {
+      const response = await fetch(
+        `https://api.dexscreener.com/tokens/v1/solana/${tokenAddress}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          tokenSymbol = data[0].baseToken?.symbol || tokenSymbol;
+          tokenPrice = parseFloat(data[0].priceUsd || '0');
+        }
+      }
+    } catch {}
 
     // Record trade in state manager
     if (this.stateManager && result.success) {
-      const tokenData = await getTokenData();
-
       this.stateManager.recordTrade({
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
         date: new Date().toISOString().split('T')[0],
-        token: '$ARA',
-        tokenSymbol: 'ARA',
+        token: tokenAddress,
+        tokenSymbol,
         direction: direction.toUpperCase() as 'BUY' | 'SELL',
-        entryPrice: tokenData.price,
+        entryPrice: tokenPrice,
         exitPrice: null,
         amountSol: amount,
         pnlSol: 0,
