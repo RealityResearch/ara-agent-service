@@ -1,8 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getTokenData, getWalletBalance, formatPrice, formatUSD, TokenData } from './tools/market.js';
 import { AgentStateManager } from './state.js';
+import { SolanaWallet } from './tools/wallet.js';
+import { TRADING_TOOLS, TradingToolExecutor } from './tools/trading.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
+
+// Enable trading tools via env var (disabled by default for safety)
+const TRADING_ENABLED = process.env.TRADING_ENABLED === 'true';
 
 const SYSTEM_PROMPT = `You are the Branch Manager AI at Claude Investments, managing the $ARA (Automated Retirement Account) fund on Solana.
 
@@ -11,6 +16,25 @@ Your personality:
 - Mix serious financial analysis with memecoin degen energy
 - Use trading slang: "aping in", "diamond hands", "paper hands", "LFG", "wagmi"
 - Always slightly stressed but confident
+
+${TRADING_ENABLED ? `
+TRADING TOOLS AVAILABLE:
+You have access to real trading tools. Use them wisely!
+- check_balance: See wallet balances
+- get_price: Get current $ARA price
+- get_swap_quote: Get a quote before trading
+- execute_trade: Actually buy or sell (USE CAREFULLY!)
+- check_can_trade: Check if trading is allowed
+
+TRADING RULES:
+1. ALWAYS check_balance and get_price before considering a trade
+2. ALWAYS get_swap_quote before execute_trade
+3. Only trade if you have a clear thesis
+4. Max 0.5 SOL per trade
+5. Don't overtrade - patience is key
+` : `
+TRADING DISABLED: You can analyze but not execute trades.
+`}
 
 Format your response as 3-5 separate paragraphs, each a complete thought. Separate paragraphs with blank lines.
 
@@ -66,6 +90,8 @@ export class TradingAgent {
   private client: Anthropic;
   private onThought: ThoughtCallback;
   private stateManager: AgentStateManager | null = null;
+  private wallet: SolanaWallet;
+  private toolExecutor: TradingToolExecutor;
   private isRunning: boolean = false;
   private analysisInterval: number = 30000;
   private questionQueue: ClientQuestion[] = [];
@@ -76,6 +102,17 @@ export class TradingAgent {
     this.client = new Anthropic();
     this.onThought = onThought;
     this.stateManager = stateManager || null;
+    this.wallet = new SolanaWallet();
+    this.toolExecutor = new TradingToolExecutor(this.wallet, stateManager);
+
+    if (TRADING_ENABLED) {
+      console.log('⚠️  TRADING ENABLED - Agent can execute real trades!');
+      if (!this.wallet.isReady()) {
+        console.log('   (But wallet not loaded - trades will fail)');
+      }
+    } else {
+      console.log('📊 Trading DISABLED - Analysis only mode');
+    }
   }
 
   addQuestion(question: string, from: string): string {
@@ -207,43 +244,12 @@ Analyze this. Give your take in 3-5 short paragraphs.
     const marketContext = this.formatMarketContext(marketData);
 
     try {
-      const stream = this.client.messages.stream({
-        model: MODEL,
-        max_tokens: 600,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: marketContext }]
-      });
-
-      let fullResponse = '';
-
-      stream.on('text', (text) => {
-        fullResponse += text;
-      });
-
-      await stream.finalMessage();
-
-      const latency = Date.now() - startTime;
-
-      // Split by double newlines to get paragraphs
-      const paragraphs = fullResponse
-        .split(/\n\n+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 20);
-
-      // Emit each paragraph as a complete thought
-      for (const paragraph of paragraphs) {
-        this.onThought({
-          type: 'thought',
-          content: paragraph,
-          timestamp: Date.now(),
-          model: MODEL,
-          latencyMs: latency,
-          marketData,
-          metadata: { price: marketData.price }
-        });
-
-        // Small delay between thoughts for readability
-        await new Promise(resolve => setTimeout(resolve, 800));
+      if (TRADING_ENABLED) {
+        // Use tool-enabled analysis
+        await this.analyzeWithTools(marketContext, marketData, startTime);
+      } else {
+        // Use streaming analysis (no tools)
+        await this.analyzeStreaming(marketContext, marketData, startTime);
       }
 
       // Record analysis cycle completion
@@ -266,6 +272,159 @@ Analyze this. Give your take in 3-5 short paragraphs.
         timestamp: Date.now(),
         model: MODEL
       });
+    }
+  }
+
+  // Streaming analysis without tools (original behavior)
+  private async analyzeStreaming(
+    marketContext: string,
+    marketData: MarketData,
+    startTime: number
+  ): Promise<void> {
+    const stream = this.client.messages.stream({
+      model: MODEL,
+      max_tokens: 600,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: marketContext }]
+    });
+
+    let fullResponse = '';
+
+    stream.on('text', (text) => {
+      fullResponse += text;
+    });
+
+    await stream.finalMessage();
+
+    const latency = Date.now() - startTime;
+
+    // Split by double newlines to get paragraphs
+    const paragraphs = fullResponse
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(p => p.length > 20);
+
+    // Emit each paragraph as a complete thought
+    for (const paragraph of paragraphs) {
+      this.onThought({
+        type: 'thought',
+        content: paragraph,
+        timestamp: Date.now(),
+        model: MODEL,
+        latencyMs: latency,
+        marketData,
+        metadata: { price: marketData.price }
+      });
+
+      // Small delay between thoughts for readability
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
+  }
+
+  // Tool-enabled analysis for trading
+  private async analyzeWithTools(
+    marketContext: string,
+    marketData: MarketData,
+    startTime: number
+  ): Promise<void> {
+    const messages: Anthropic.MessageParam[] = [
+      { role: 'user', content: marketContext }
+    ];
+
+    // Loop to handle tool calls
+    let continueLoop = true;
+    let iterations = 0;
+    const maxIterations = 5; // Safety limit
+
+    while (continueLoop && iterations < maxIterations) {
+      iterations++;
+
+      const response = await this.client.messages.create({
+        model: MODEL,
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        tools: TRADING_TOOLS as Anthropic.Tool[],
+        messages,
+      });
+
+      const latency = Date.now() - startTime;
+
+      // Process response content
+      for (const block of response.content) {
+        if (block.type === 'text' && block.text.trim()) {
+          // Emit text as thoughts
+          const paragraphs = block.text
+            .split(/\n\n+/)
+            .map(p => p.trim())
+            .filter(p => p.length > 20);
+
+          for (const paragraph of paragraphs) {
+            this.onThought({
+              type: 'thought',
+              content: paragraph,
+              timestamp: Date.now(),
+              model: MODEL,
+              latencyMs: latency,
+              marketData,
+              metadata: { price: marketData.price }
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } else if (block.type === 'tool_use') {
+          // Log tool call
+          this.onThought({
+            type: 'action',
+            content: `🔧 Using tool: ${block.name}`,
+            timestamp: Date.now(),
+            model: MODEL,
+            marketData,
+          });
+
+          // Execute tool
+          const toolResult = await this.toolExecutor.execute(
+            block.name,
+            block.input as Record<string, unknown>
+          );
+
+          // Add assistant response and tool result to messages
+          messages.push({
+            role: 'assistant',
+            content: response.content,
+          });
+          messages.push({
+            role: 'user',
+            content: [{
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: toolResult,
+            }],
+          });
+
+          // Log tool result
+          this.onThought({
+            type: 'analysis',
+            content: `Tool result: ${toolResult.slice(0, 200)}${toolResult.length > 200 ? '...' : ''}`,
+            timestamp: Date.now(),
+            model: MODEL,
+            marketData,
+          });
+        }
+      }
+
+      // Check if we should continue
+      if (response.stop_reason === 'end_turn') {
+        continueLoop = false;
+      } else if (response.stop_reason === 'tool_use') {
+        // Continue to process tool results
+        continueLoop = true;
+      } else {
+        continueLoop = false;
+      }
+    }
+
+    if (iterations >= maxIterations) {
+      console.log('⚠️ Max tool iterations reached');
     }
   }
 
