@@ -4,6 +4,7 @@ import { AgentStateManager } from './state.js';
 import { SolanaWallet } from './tools/wallet.js';
 import { TRADING_TOOLS, TradingToolExecutor } from './tools/trading.js';
 import { RESEARCH_TOOLS, ResearchToolExecutor, getResearchTools } from './tools/research.js';
+import { DISCOVERY_TOOLS, executeDiscoveryTool } from './tools/discovery.js';
 import { MemoryManager } from './memory/index.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
@@ -53,6 +54,16 @@ RESEARCH TOOLS (if enabled):
 - web_search: Search the web for crypto news, sentiment, alpha
 - scrape_page: Read content from any webpage
 - search_crypto_twitter: Find crypto sentiment on Twitter/X
+
+DISCOVERY TOOLS (always available):
+- discover_tokens: Scan DexScreener for trending/boosted Solana tokens
+- search_tokens: Search for specific tokens by name or theme
+
+USE DISCOVERY TO:
+- Find new potential plays (tokens with momentum)
+- Scan for trending memecoins
+- Research tokens before considering a trade
+- Compare opportunities across the market
 
 USE RESEARCH FOR:
 - Finding news about tokens you're watching
@@ -416,10 +427,11 @@ Analyze this. Give your take in 3-5 short paragraphs.
     let iterations = 0;
     const maxIterations = 5; // Safety limit
 
-    // Combine trading tools with research tools (if enabled)
+    // Combine trading tools with research tools (if enabled) and discovery tools
     const allTools = [
       ...TRADING_TOOLS,
       ...getResearchTools(),
+      ...DISCOVERY_TOOLS,
     ] as Anthropic.Tool[];
 
     while (continueLoop && iterations < maxIterations) {
@@ -480,9 +492,16 @@ Analyze this. Give your take in 3-5 short paragraphs.
 
             // Execute tool - route to correct executor
             const isResearchTool = ['web_search', 'scrape_page', 'search_crypto_twitter'].includes(block.name);
-            const toolResult = isResearchTool
-              ? await this.researchExecutor.execute(block.name, block.input as Record<string, unknown>)
-              : await this.toolExecutor.execute(block.name, block.input as Record<string, unknown>);
+            const isDiscoveryTool = ['discover_tokens', 'search_tokens'].includes(block.name);
+
+            let toolResult: string;
+            if (isDiscoveryTool) {
+              toolResult = await executeDiscoveryTool(block.name, block.input as Record<string, unknown>);
+            } else if (isResearchTool) {
+              toolResult = await this.researchExecutor.execute(block.name, block.input as Record<string, unknown>);
+            } else {
+              toolResult = await this.toolExecutor.execute(block.name, block.input as Record<string, unknown>);
+            }
 
             toolResults.push({
               type: 'tool_result',

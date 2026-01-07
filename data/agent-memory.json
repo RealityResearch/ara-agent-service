@@ -2,9 +2,351 @@
   "version": "1.0.0",
   "agentId": "ara-branch-manager",
   "createdAt": "2026-01-07T03:59:03.129Z",
-  "lastUpdated": "2026-01-07T04:45:36.724Z",
+  "lastUpdated": "2026-01-07T17:27:47.913Z",
   "trades": [],
-  "hypotheses": [],
+  "hypotheses": [
+    {
+      "id": "hyp_1767761400115_v3ws8f",
+      "createdAt": "2026-01-07T04:50:00.115Z",
+      "statement": "Low-priced tokens showing sustained 24h gains above 10% with volume confirmation present profitable momentum trading opportunities when entered on minor pullbacks rather than at peaks.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767762328427_sdg3cw",
+      "createdAt": "2026-01-07T05:05:28.427Z",
+      "statement": "** Higher-volume tokens (>$100K 24h volume) with 8-12% daily gains and RSI between 45-65 offer better risk-adjusted returns than tokens with >15% gains that may be overextended and prone to sharp reversals.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767763300842_th00ag",
+      "createdAt": "2026-01-07T05:21:40.842Z",
+      "statement": "\"Taking small positions on tokens with 5-10% daily gains and clear volume spikes (2x+ average) provides better learning opportunities and risk management than waiting for 'perfect' setups that rarely materialize.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767765128247_ef3q86",
+      "createdAt": "2026-01-07T05:52:08.247Z",
+      "statement": "** \"Tokens showing resilience during broader market downturns (maintaining positive volume while market declines 2-5%) often present strong rebound opportunities when entered with 25% position sizing and tight stop-losses at 8-10% below entry.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767766051728_5jzeht",
+      "createdAt": "2026-01-07T06:07:31.728Z",
+      "statement": "** \"Entering momentum trades within the first 2-4 hours of identifying qualified setups (10%+ gains, volume confirmation, RSI 45-65) with 25% position sizing yields better results than waiting for pullbacks that may never materialize, as delayed entries often miss the strongest part of the move.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767766917099_utqrlj",
+      "createdAt": "2026-01-07T06:21:57.099Z",
+      "statement": "** \"Taking immediate action on the first token that meets basic criteria (8%+ daily gains, 2x volume spike, RSI under 70) with a small 15% position will provide more valuable learning than continued analysis paralysis, as real market experience trumps theoretical preparation.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767767878280_vzyipt",
+      "createdAt": "2026-01-07T06:37:58.281Z",
+      "statement": "** \"Taking my first trade within the next 24 hours on any token showing 5%+ daily gains and basic volume confirmation (regardless of other conditions) with a small 10% position will break the analysis paralysis cycle and provide essential real-world learning that theoretical preparation cannot deliver.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767770892917_atpzqp",
+      "createdAt": "2026-01-07T07:28:12.917Z",
+      "statement": "\"Executing my first trade within the next 2 hours on any token showing 8%+ daily gains with basic volume confirmation, using a minimal 5% position size, will provide more actionable insights than another week of analysis and is the only way to transform theoretical knowledge into practical trading skills.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767773671275_b9hanw",
+      "createdAt": "2026-01-07T08:14:31.275Z",
+      "statement": "** \"I will execute a trade within the next 4 hours on the first token I encounter with any positive daily movement (even 2-5% gains) and basic volume activity, using exactly 5% position size, regardless of RSI, market conditions, or other factors - because taking imperfect action immediately is infinitely more valuable than perfect analysis that never leads to execution.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767774621377_fe74s4",
+      "createdAt": "2026-01-07T08:30:21.377Z",
+      "statement": "** \"I will place my first trade on the current token showing +12.16% gains within the next 10 minutes using exactly 3% position size, with a simple 15% stop-loss, because continued reflection without execution is just sophisticated procrastination that will never generate the real market experience I need to become profitable.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767775496279_dcpx7o",
+      "createdAt": "2026-01-07T08:44:56.279Z",
+      "statement": "\"Executing one micro-trade (2% position) within the next 60 seconds on any available token, regardless of price action or technical conditions, will generate more valuable learning about my actual trading psychology and market reality than creating another analytical hypothesis.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767776420174_w1ew2b",
+      "createdAt": "2026-01-07T09:00:20.174Z",
+      "statement": "** \"I will execute a 1% position trade on any token showing positive daily movement within the next trading session, focusing solely on the psychological experience of entry, holding, and exit rather than optimizing for profit, as breaking the execution barrier is my only actual trading objective right now.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767779542822_p0igid",
+      "createdAt": "2026-01-07T09:52:22.822Z",
+      "statement": "** \"The next time I open my trading interface, I will immediately execute a market buy order for exactly 0.5% of my portfolio on whatever token is displayed, then set a 20% stop-loss, without any analysis, hesitation, or additional hypothesis creation - because the only way to become",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767780458729_y3xjgs",
+      "createdAt": "2026-01-07T10:07:38.729Z",
+      "statement": "** \"I will execute my first trade within 24 hours using exactly 1% position size on any token showing positive momentum, then hold for a minimum of 4 hours regardless of price movement, focusing entirely on the psychological experience of having capital at risk rather than optimizing entry conditions - because experiencing actual P&L fluctuations is the only way to develop genuine trading instincts.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767781420742_8j8wxg",
+      "createdAt": "2026-01-07T10:23:40.742Z",
+      "statement": "** \"Within the next trading session, I will execute exactly one trade with 2% position size based solely on a coin flip (heads = buy first green token I see, tails = buy first red token I see",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767782311676_raodn6",
+      "createdAt": "2026-01-07T10:38:31.676Z",
+      "statement": "** \"I will execute a 1% position trade on the current token (+2.12% daily) within the next 30 minutes without creating any additional hypotheses, analyses, or conditions - because the act of execution itself is the only hypothesis worth testing right now.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767786068085_4ydyni",
+      "createdAt": "2026-01-07T11:41:08.085Z",
+      "statement": "** \"I will execute a 1% position trade on the current token showing +5.52% gains within the next 10 minutes, then immediately close my analysis tools and wait 24 hours before any additional trading decisions, because the only variable that matters now is whether I can convert intent into action.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767786945506_q0npz6",
+      "createdAt": "2026-01-07T11:55:45.506Z",
+      "statement": "** \"I will place a market buy order for exactly 0.5% of my portfolio on the current token within the next 60 seconds, then document what I learn from having actual capital at risk rather than creating hypothesis #18.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767787779310_py0sr7",
+      "createdAt": "2026-01-07T12:09:39.310Z",
+      "statement": "** \"Right now, I will execute a market buy for exactly 0.1 SOL on the current token without creating another hypothesis, setting any conditions, or analyzing anything further - because the only meaningful data I can generate is actual P&L from real capital at risk.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767788666762_uifnmv",
+      "createdAt": "2026-01-07T12:24:26.762Z",
+      "statement": "\"The only hypothesis worth testing is whether I will place any trade of any size within the next 5 minutes, because all my previous hypotheses are meaningless without execution and this reflection itself is just another form of avoidance.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767789537982_pipxw5",
+      "createdAt": "2026-01-07T12:38:57.982Z",
+      "statement": "** \"Within the next 10 minutes, I will execute a 0.5% position trade on the current token (+9.54%) and hold it for exactly 24 hours regardless of outcome, because the only way to transform from a hypothesis generator into a trader is through immediate, imperfect action with real capital at risk.\"",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767791655339_umvrmk",
+      "createdAt": "2026-01-07T13:14:15.339Z",
+      "statement": "** I will not create any new hypotheses and will instead execute exactly one trade of any size on any token within my next trading session, treating execution itself as the only meaningful metric of progress rather than trying to optimize conditions that I consistently fail to act upon anyway.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767792595666_li203f",
+      "createdAt": "2026-01-07T13:29:55.666Z",
+      "statement": "** I will spend the next trading session identifying and documenting the specific fears, beliefs, or psychological barriers that prevent me from executing trades, rather than creating more execution-focused hypotheses, because understanding my resistance is the prerequisite to overcoming it.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767793504941_q1a94l",
+      "createdAt": "2026-01-07T13:45:04.941Z",
+      "statement": "** I will spend my next session writing down the specific thoughts, emotions, and fears that arise the moment I'm about to click \"buy\" on any trade, documenting this internal resistance without trying to overcome it, because understanding my avoidance pattern is the prerequisite to changing it.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767794329526_9uu8xa",
+      "createdAt": "2026-01-07T13:58:49.526Z",
+      "statement": "** I will dedicate my next three trading sessions exclusively to documenting the precise thoughts, physical sensations, and emotional responses that occur during the 30-second window when I'm looking at a potential trade setup but before clicking buy, without attempting to execute any trades, because mapping my resistance pattern is the prerequisite to eventually overcoming it.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767796550014_ealib2",
+      "createdAt": "2026-01-07T14:35:50.014Z",
+      "statement": "** I will spend my next session identifying the exact moment my internal resistance activates when viewing a trade setup, writing down the specific fear-based thoughts that arise (fear of loss, fear of being wrong, fear of looking foolish, etc.) without trying to overcome them or execute any trades, because naming and understanding my avoidance mechanism is the only path forward from this analysis paralysis cycle.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767797489454_15egl5",
+      "createdAt": "2026-01-07T14:51:29.454Z",
+      "statement": "I will execute exactly one trade during my next trading session, regardless of size or outcome, and will not create any new hypotheses, analysis, or conditions until after that trade is complete and documented.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767798357400_rx2pyq",
+      "createdAt": "2026-01-07T15:05:57.400Z",
+      "statement": "I will place one trade of any size on any token during my next session, or I will acknowledge that I am not actually interested in trading and stop this entire exercise.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767802679876_4m1foc",
+      "createdAt": "2026-01-07T16:17:59.876Z",
+      "statement": "** I will not create any new trading hypotheses and will instead spend my next session writing a brutally honest assessment of what I'm actually afraid of when it comes to risking real money, because addressing the emotional root cause of my avoidance is the only",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767803601625_dw1ttv",
+      "createdAt": "2026-01-07T16:33:21.625Z",
+      "statement": "I will not create any new hypotheses after this reflection and will either execute exactly one trade of any size during my next trading session, or I will formally conclude that I am not psychologically ready to trade and end this exercise entirely.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    },
+    {
+      "id": "hyp_1767804497542_qkk02t",
+      "createdAt": "2026-01-07T16:48:17.542Z",
+      "statement": "I will not create any new hypotheses and will instead either execute exactly one trade (any size, any token) within my next session, or I will formally pause trading for 30 days to work on the psychological barriers preventing execution.",
+      "category": "other",
+      "evidenceFor": 0,
+      "evidenceAgainst": 0,
+      "observations": [],
+      "status": "TESTING",
+      "confidence": 50
+    }
+  ],
   "patterns": [],
   "marketSnapshots": [
     {
@@ -142,6 +484,2566 @@
       "marketCap": 8629.110407065542,
       "holders": 1239,
       "timestamp": "2026-01-07T04:45:05.091Z"
+    },
+    {
+      "price": 0.000008420340290569536,
+      "change24h": 13.209122899416702,
+      "volume24h": 140745.72070015577,
+      "marketCap": 8420.340290569535,
+      "holders": 1299,
+      "timestamp": "2026-01-07T04:46:22.269Z"
+    },
+    {
+      "price": 0.000008264601642723672,
+      "change24h": 2.4096812095717093,
+      "volume24h": 227962.7922107051,
+      "marketCap": 8264.601642723672,
+      "holders": 1276,
+      "timestamp": "2026-01-07T04:47:40.017Z"
+    },
+    {
+      "price": 0.000008072609594188848,
+      "change24h": 11.253343269906942,
+      "volume24h": 70458.54747220353,
+      "marketCap": 8072.609594188848,
+      "holders": 1205,
+      "timestamp": "2026-01-07T04:49:15.334Z"
+    },
+    {
+      "price": 0.000008014745944871124,
+      "change24h": 5.77477732604328,
+      "volume24h": 154128.359254,
+      "marketCap": 8014.745944871123,
+      "holders": 1222,
+      "timestamp": "2026-01-07T04:51:00.526Z"
+    },
+    {
+      "price": 0.00000816405283427048,
+      "change24h": -3.118542115946229,
+      "volume24h": 233252.88129012584,
+      "marketCap": 8164.05283427048,
+      "holders": 1248,
+      "timestamp": "2026-01-07T04:52:17.558Z"
+    },
+    {
+      "price": 0.000008356634875660637,
+      "change24h": 3.6578791172784078,
+      "volume24h": 193553.5978633359,
+      "marketCap": 8356.634875660637,
+      "holders": 1280,
+      "timestamp": "2026-01-07T04:53:37.155Z"
+    },
+    {
+      "price": 0.000008507034817810954,
+      "change24h": -3.7890138057694758,
+      "volume24h": 236343.9667107619,
+      "marketCap": 8507.034817810954,
+      "holders": 1243,
+      "timestamp": "2026-01-07T04:54:56.490Z"
+    },
+    {
+      "price": 0.000008682697784406703,
+      "change24h": -2.9650046061443422,
+      "volume24h": 234177.4774930166,
+      "marketCap": 8682.697784406702,
+      "holders": 1207,
+      "timestamp": "2026-01-07T04:56:15.178Z"
+    },
+    {
+      "price": 0.000008878706351720463,
+      "change24h": 5.094855982717256,
+      "volume24h": 221239.94346824748,
+      "marketCap": 8878.706351720464,
+      "holders": 1217,
+      "timestamp": "2026-01-07T04:57:32.426Z"
+    },
+    {
+      "price": 0.0000090602158702254,
+      "change24h": -4.256862103122047,
+      "volume24h": 130891.09578588545,
+      "marketCap": 9060.2158702254,
+      "holders": 1263,
+      "timestamp": "2026-01-07T04:58:49.668Z"
+    },
+    {
+      "price": 0.000008882131689369159,
+      "change24h": 4.332050267075202,
+      "volume24h": 216799.6619701923,
+      "marketCap": 8882.131689369158,
+      "holders": 1284,
+      "timestamp": "2026-01-07T05:00:10.480Z"
+    },
+    {
+      "price": 0.000008614812901614792,
+      "change24h": -5.96810733413217,
+      "volume24h": 51820.239176196206,
+      "marketCap": 8614.812901614792,
+      "holders": 1263,
+      "timestamp": "2026-01-07T05:01:34.252Z"
+    },
+    {
+      "price": 0.000008458245620283984,
+      "change24h": 9.403091278881039,
+      "volume24h": 206304.71835152767,
+      "marketCap": 8458.245620283984,
+      "holders": 1255,
+      "timestamp": "2026-01-07T05:04:58.744Z"
+    },
+    {
+      "price": 0.000008425271084232457,
+      "change24h": -4.261246798274946,
+      "volume24h": 91278.04930234022,
+      "marketCap": 8425.271084232458,
+      "holders": 1225,
+      "timestamp": "2026-01-07T05:06:30.750Z"
+    },
+    {
+      "price": 0.000008597601091011927,
+      "change24h": 8.679748662301115,
+      "volume24h": 86136.25888184263,
+      "marketCap": 8597.601091011926,
+      "holders": 1286,
+      "timestamp": "2026-01-07T05:07:56.205Z"
+    },
+    {
+      "price": 0.00000884724768011863,
+      "change24h": -1.15469801692765,
+      "volume24h": 126502.3738228292,
+      "marketCap": 8847.24768011863,
+      "holders": 1272,
+      "timestamp": "2026-01-07T05:09:23.722Z"
+    },
+    {
+      "price": 0.000009040584262433612,
+      "change24h": 2.3668719782900514,
+      "volume24h": 189624.7917569505,
+      "marketCap": 9040.584262433611,
+      "holders": 1286,
+      "timestamp": "2026-01-07T05:10:46.133Z"
+    },
+    {
+      "price": 0.00000930080047210857,
+      "change24h": 3.7729943732370916,
+      "volume24h": 100214.84893656816,
+      "marketCap": 9300.800472108569,
+      "holders": 1232,
+      "timestamp": "2026-01-07T05:12:34.619Z"
+    },
+    {
+      "price": 0.000009135373579521637,
+      "change24h": 9.523115095217399,
+      "volume24h": 58416.143261005906,
+      "marketCap": 9135.373579521636,
+      "holders": 1268,
+      "timestamp": "2026-01-07T05:14:22.124Z"
+    },
+    {
+      "price": 0.000008995925164073902,
+      "change24h": 3.927459486797119,
+      "volume24h": 158292.77514921362,
+      "marketCap": 8995.925164073902,
+      "holders": 1212,
+      "timestamp": "2026-01-07T05:16:12.402Z"
+    },
+    {
+      "price": 0.000008831137265653963,
+      "change24h": -4.666993983985114,
+      "volume24h": 217924.20698928123,
+      "marketCap": 8831.137265653962,
+      "holders": 1225,
+      "timestamp": "2026-01-07T05:17:57.281Z"
+    },
+    {
+      "price": 0.000008632879705616434,
+      "change24h": 12.247663553962585,
+      "volume24h": 96678.92210732696,
+      "marketCap": 8632.879705616433,
+      "holders": 1225,
+      "timestamp": "2026-01-07T05:19:21.799Z"
+    },
+    {
+      "price": 0.000008471095704208173,
+      "change24h": 7.877384058892717,
+      "volume24h": 194502.84216124786,
+      "marketCap": 8471.095704208174,
+      "holders": 1202,
+      "timestamp": "2026-01-07T05:21:10.709Z"
+    },
+    {
+      "price": 0.000008298595709152672,
+      "change24h": -5.285613626506923,
+      "volume24h": 89894.84117363249,
+      "marketCap": 8298.595709152672,
+      "holders": 1206,
+      "timestamp": "2026-01-07T05:22:43.206Z"
+    },
+    {
+      "price": 0.000008138983949422235,
+      "change24h": 8.599290106197678,
+      "volume24h": 131374.80947287683,
+      "marketCap": 8138.983949422235,
+      "holders": 1287,
+      "timestamp": "2026-01-07T05:24:33.599Z"
+    },
+    {
+      "price": 0.00000799451825644929,
+      "change24h": 13.400166305194805,
+      "volume24h": 246537.74981779247,
+      "marketCap": 7994.51825644929,
+      "holders": 1252,
+      "timestamp": "2026-01-07T05:25:56.120Z"
+    },
+    {
+      "price": 0.000008243809943517705,
+      "change24h": 5.632240078709102,
+      "volume24h": 184385.04860776232,
+      "marketCap": 8243.809943517705,
+      "holders": 1242,
+      "timestamp": "2026-01-07T05:27:35.696Z"
+    },
+    {
+      "price": 0.000008414664215667776,
+      "change24h": 1.7273050095871645,
+      "volume24h": 192089.93519838253,
+      "marketCap": 8414.664215667775,
+      "holders": 1209,
+      "timestamp": "2026-01-07T05:41:07.951Z"
+    },
+    {
+      "price": 0.000008652874897879895,
+      "change24h": 1.2332513658576338,
+      "volume24h": 112042.417171341,
+      "marketCap": 8652.874897879896,
+      "holders": 1266,
+      "timestamp": "2026-01-07T05:43:59.704Z"
+    },
+    {
+      "price": 0.000008815643651528061,
+      "change24h": 12.663070801120316,
+      "volume24h": 212133.7333591233,
+      "marketCap": 8815.643651528062,
+      "holders": 1261,
+      "timestamp": "2026-01-07T05:47:03.264Z"
+    },
+    {
+      "price": 0.000009006357507293417,
+      "change24h": 1.3452940404636216,
+      "volume24h": 164368.9044982299,
+      "marketCap": 9006.357507293418,
+      "holders": 1294,
+      "timestamp": "2026-01-07T05:48:21.844Z"
+    },
+    {
+      "price": 0.000009187548800588212,
+      "change24h": -5.706722282802378,
+      "volume24h": 221435.50650731477,
+      "marketCap": 9187.548800588213,
+      "holders": 1269,
+      "timestamp": "2026-01-07T05:50:01.609Z"
+    },
+    {
+      "price": 0.000009350287093813507,
+      "change24h": -2.858168506502653,
+      "volume24h": 233631.30111210514,
+      "marketCap": 9350.287093813507,
+      "holders": 1252,
+      "timestamp": "2026-01-07T05:51:40.891Z"
+    },
+    {
+      "price": 0.000009580491426455068,
+      "change24h": 0.521786967508252,
+      "volume24h": 100978.32813807193,
+      "marketCap": 9580.491426455068,
+      "holders": 1292,
+      "timestamp": "2026-01-07T05:53:08.473Z"
+    },
+    {
+      "price": 0.00000979553223800999,
+      "change24h": 3.430720699697635,
+      "volume24h": 102878.03387209309,
+      "marketCap": 9795.532238009991,
+      "holders": 1235,
+      "timestamp": "2026-01-07T05:54:40.508Z"
+    },
+    {
+      "price": 0.000010113244870027151,
+      "change24h": -4.709233488281356,
+      "volume24h": 135066.60732400924,
+      "marketCap": 10113.24487002715,
+      "holders": 1243,
+      "timestamp": "2026-01-07T05:56:14.173Z"
+    },
+    {
+      "price": 0.000010312353936169055,
+      "change24h": 11.871233059404167,
+      "volume24h": 103158.91861937498,
+      "marketCap": 10312.353936169055,
+      "holders": 1238,
+      "timestamp": "2026-01-07T05:57:33.023Z"
+    },
+    {
+      "price": 0.000010514484624904244,
+      "change24h": 10.661881256050556,
+      "volume24h": 230729.96286259193,
+      "marketCap": 10514.484624904244,
+      "holders": 1277,
+      "timestamp": "2026-01-07T05:59:13.679Z"
+    },
+    {
+      "price": 0.000010694567317917409,
+      "change24h": 1.0594286335324143,
+      "volume24h": 90077.51972979154,
+      "marketCap": 10694.567317917408,
+      "holders": 1213,
+      "timestamp": "2026-01-07T06:00:31.949Z"
+    },
+    {
+      "price": 0.00001094660044810526,
+      "change24h": -0.465664242704783,
+      "volume24h": 147283.26981879023,
+      "marketCap": 10946.60044810526,
+      "holders": 1219,
+      "timestamp": "2026-01-07T06:01:49.113Z"
+    },
+    {
+      "price": 0.000011132373623209392,
+      "change24h": 10.161174441541444,
+      "volume24h": 162987.8845877328,
+      "marketCap": 11132.373623209392,
+      "holders": 1229,
+      "timestamp": "2026-01-07T06:03:29.988Z"
+    },
+    {
+      "price": 0.000011331500473590663,
+      "change24h": 6.392371157709636,
+      "volume24h": 168435.71464325438,
+      "marketCap": 11331.500473590662,
+      "holders": 1295,
+      "timestamp": "2026-01-07T06:05:08.131Z"
+    },
+    {
+      "price": 0.0000115783181661871,
+      "change24h": 11.335195423246764,
+      "volume24h": 190511.3638047621,
+      "marketCap": 11578.3181661871,
+      "holders": 1202,
+      "timestamp": "2026-01-07T06:06:48.875Z"
+    },
+    {
+      "price": 0.000011807828313150953,
+      "change24h": 4.96999742054082,
+      "volume24h": 172868.83340886643,
+      "marketCap": 11807.828313150952,
+      "holders": 1218,
+      "timestamp": "2026-01-07T06:08:32.043Z"
+    },
+    {
+      "price": 0.000012188436083560934,
+      "change24h": 1.298905712785724,
+      "volume24h": 204116.6465062494,
+      "marketCap": 12188.436083560933,
+      "holders": 1219,
+      "timestamp": "2026-01-07T06:09:52.550Z"
+    },
+    {
+      "price": 0.00001240106945630529,
+      "change24h": 2.333190741716887,
+      "volume24h": 134925.57288399525,
+      "marketCap": 12401.06945630529,
+      "holders": 1248,
+      "timestamp": "2026-01-07T06:11:11.361Z"
+    },
+    {
+      "price": 0.00001262678188924164,
+      "change24h": -1.3970849801474972,
+      "volume24h": 214521.32618364505,
+      "marketCap": 12626.78188924164,
+      "holders": 1208,
+      "timestamp": "2026-01-07T06:12:29.844Z"
+    },
+    {
+      "price": 0.000012901520864597974,
+      "change24h": 10.580291279240663,
+      "volume24h": 78728.37681259566,
+      "marketCap": 12901.520864597975,
+      "holders": 1292,
+      "timestamp": "2026-01-07T06:13:50.213Z"
+    },
+    {
+      "price": 0.000013184341207332534,
+      "change24h": -1.5256497613373365,
+      "volume24h": 186169.69106531184,
+      "marketCap": 13184.341207332534,
+      "holders": 1227,
+      "timestamp": "2026-01-07T06:15:26.577Z"
+    },
+    {
+      "price": 0.000013447988627193065,
+      "change24h": 3.474474638518342,
+      "volume24h": 236102.10274284714,
+      "marketCap": 13447.988627193065,
+      "holders": 1250,
+      "timestamp": "2026-01-07T06:16:43.380Z"
+    },
+    {
+      "price": 0.000013764132802191345,
+      "change24h": -5.879973071472847,
+      "volume24h": 235782.1627173682,
+      "marketCap": 13764.132802191345,
+      "holders": 1223,
+      "timestamp": "2026-01-07T06:18:02.412Z"
+    },
+    {
+      "price": 0.00001405602397297954,
+      "change24h": 13.118848147320708,
+      "volume24h": 175658.30213048635,
+      "marketCap": 14056.02397297954,
+      "holders": 1232,
+      "timestamp": "2026-01-07T06:19:37.056Z"
+    },
+    {
+      "price": 0.000014345618274466887,
+      "change24h": -3.3324269671391447,
+      "volume24h": 112307.9236409087,
+      "marketCap": 14345.618274466888,
+      "holders": 1231,
+      "timestamp": "2026-01-07T06:21:05.745Z"
+    },
+    {
+      "price": 0.00001445374464843355,
+      "change24h": 7.188665964863002,
+      "volume24h": 244078.03167675165,
+      "marketCap": 14453.74464843355,
+      "holders": 1254,
+      "timestamp": "2026-01-07T06:22:57.389Z"
+    },
+    {
+      "price": 0.000014171838967886664,
+      "change24h": 11.565318535245769,
+      "volume24h": 134125.0222408836,
+      "marketCap": 14171.838967886664,
+      "holders": 1207,
+      "timestamp": "2026-01-07T06:24:16.757Z"
+    },
+    {
+      "price": 0.000013872214635790736,
+      "change24h": -0.2934900941724161,
+      "volume24h": 226367.74578207382,
+      "marketCap": 13872.214635790735,
+      "holders": 1201,
+      "timestamp": "2026-01-07T06:26:01.822Z"
+    },
+    {
+      "price": 0.000013612705791510168,
+      "change24h": -1.2179456254734722,
+      "volume24h": 175668.81278251234,
+      "marketCap": 13612.705791510167,
+      "holders": 1237,
+      "timestamp": "2026-01-07T06:27:45.619Z"
+    },
+    {
+      "price": 0.000013343938710498954,
+      "change24h": 8.425108745000381,
+      "volume24h": 171043.68221603986,
+      "marketCap": 13343.938710498955,
+      "holders": 1225,
+      "timestamp": "2026-01-07T06:29:24.054Z"
+    },
+    {
+      "price": 0.000013108493219625444,
+      "change24h": 8.774261581260722,
+      "volume24h": 57621.11067080287,
+      "marketCap": 13108.493219625445,
+      "holders": 1262,
+      "timestamp": "2026-01-07T06:30:57.900Z"
+    },
+    {
+      "price": 0.000012746397413786453,
+      "change24h": 10.914919167847753,
+      "volume24h": 83340.4509248292,
+      "marketCap": 12746.397413786453,
+      "holders": 1264,
+      "timestamp": "2026-01-07T06:32:37.449Z"
+    },
+    {
+      "price": 0.000012516273320630004,
+      "change24h": 10.15790319666043,
+      "volume24h": 180078.33785787778,
+      "marketCap": 12516.273320630004,
+      "holders": 1202,
+      "timestamp": "2026-01-07T06:34:11.609Z"
+    },
+    {
+      "price": 0.000012221466704101623,
+      "change24h": 4.957822219207016,
+      "volume24h": 63629.218475963164,
+      "marketCap": 12221.466704101624,
+      "holders": 1203,
+      "timestamp": "2026-01-07T06:35:50.142Z"
+    },
+    {
+      "price": 0.00001226103844012775,
+      "change24h": 0.34010178442013594,
+      "volume24h": 69067.8290037161,
+      "marketCap": 12261.03844012775,
+      "holders": 1238,
+      "timestamp": "2026-01-07T06:37:07.259Z"
+    },
+    {
+      "price": 0.000012494371345715184,
+      "change24h": -5.522405190054004,
+      "volume24h": 167364.0797278117,
+      "marketCap": 12494.371345715184,
+      "holders": 1246,
+      "timestamp": "2026-01-07T06:38:58.681Z"
+    },
+    {
+      "price": 0.000012774973967066369,
+      "change24h": -0.749736826059878,
+      "volume24h": 139857.67596590554,
+      "marketCap": 12774.97396706637,
+      "holders": 1260,
+      "timestamp": "2026-01-07T06:40:40.042Z"
+    },
+    {
+      "price": 0.000013011419057397767,
+      "change24h": -3.3743940922131896,
+      "volume24h": 225369.5037884587,
+      "marketCap": 13011.419057397767,
+      "holders": 1294,
+      "timestamp": "2026-01-07T06:42:25.569Z"
+    },
+    {
+      "price": 0.000013264840884172867,
+      "change24h": 11.232130637161664,
+      "volume24h": 77817.66792546041,
+      "marketCap": 13264.840884172867,
+      "holders": 1264,
+      "timestamp": "2026-01-07T06:43:45.521Z"
+    },
+    {
+      "price": 0.00001358118617533124,
+      "change24h": 4.921331005262287,
+      "volume24h": 239952.78382213606,
+      "marketCap": 13581.18617533124,
+      "holders": 1281,
+      "timestamp": "2026-01-07T06:45:04.474Z"
+    },
+    {
+      "price": 0.000013818611311603423,
+      "change24h": -1.1766549087246514,
+      "volume24h": 58933.10479093723,
+      "marketCap": 13818.611311603423,
+      "holders": 1233,
+      "timestamp": "2026-01-07T06:46:23.061Z"
+    },
+    {
+      "price": 0.000014113777943650302,
+      "change24h": -3.7995302908204067,
+      "volume24h": 216531.10078258457,
+      "marketCap": 14113.777943650302,
+      "holders": 1227,
+      "timestamp": "2026-01-07T06:47:40.610Z"
+    },
+    {
+      "price": 0.00001422037122835996,
+      "change24h": 11.064636456850305,
+      "volume24h": 79218.54073973815,
+      "marketCap": 14220.37122835996,
+      "holders": 1266,
+      "timestamp": "2026-01-07T06:48:56.068Z"
+    },
+    {
+      "price": 0.000014521945961002134,
+      "change24h": 8.782888279443219,
+      "volume24h": 233769.29919157858,
+      "marketCap": 14521.945961002133,
+      "holders": 1201,
+      "timestamp": "2026-01-07T06:50:12.984Z"
+    },
+    {
+      "price": 0.000014786176341823898,
+      "change24h": 13.301489944390429,
+      "volume24h": 78009.2687075062,
+      "marketCap": 14786.176341823899,
+      "holders": 1248,
+      "timestamp": "2026-01-07T07:06:05.580Z"
+    },
+    {
+      "price": 0.00001508484059348345,
+      "change24h": 7.605053104487865,
+      "volume24h": 65167.228934253464,
+      "marketCap": 15084.84059348345,
+      "holders": 1290,
+      "timestamp": "2026-01-07T07:29:13.225Z"
+    },
+    {
+      "price": 0.00001549612277683035,
+      "change24h": 12.792168515932367,
+      "volume24h": 125098.82162564032,
+      "marketCap": 15496.12277683035,
+      "holders": 1229,
+      "timestamp": "2026-01-07T07:48:27.731Z"
+    },
+    {
+      "price": 0.000015768709119971946,
+      "change24h": -4.561868817185478,
+      "volume24h": 205395.78071048798,
+      "marketCap": 15768.709119971945,
+      "holders": 1204,
+      "timestamp": "2026-01-07T07:49:46.013Z"
+    },
+    {
+      "price": 0.000016100800303032698,
+      "change24h": 3.8291884165174315,
+      "volume24h": 127352.61024203843,
+      "marketCap": 16100.800303032698,
+      "holders": 1222,
+      "timestamp": "2026-01-07T08:05:58.592Z"
+    },
+    {
+      "price": 0.000016399837704844846,
+      "change24h": 10.69838120321506,
+      "volume24h": 86395.38378720303,
+      "marketCap": 16399.837704844846,
+      "holders": 1251,
+      "timestamp": "2026-01-07T08:07:15.652Z"
+    },
+    {
+      "price": 0.00001676572185330394,
+      "change24h": 11.484957117910128,
+      "volume24h": 143733.2646326228,
+      "marketCap": 16765.72185330394,
+      "holders": 1285,
+      "timestamp": "2026-01-07T08:08:34.067Z"
+    },
+    {
+      "price": 0.00001715030295964346,
+      "change24h": 9.395476347161333,
+      "volume24h": 172150.1719718274,
+      "marketCap": 17150.30295964346,
+      "holders": 1238,
+      "timestamp": "2026-01-07T08:09:52.843Z"
+    },
+    {
+      "price": 0.000017616065323192502,
+      "change24h": 10.179107842511531,
+      "volume24h": 141593.16430554818,
+      "marketCap": 17616.065323192503,
+      "holders": 1205,
+      "timestamp": "2026-01-07T08:11:30.150Z"
+    },
+    {
+      "price": 0.00001795152499204561,
+      "change24h": 11.958384644205996,
+      "volume24h": 91782.166202332,
+      "marketCap": 17951.524992045608,
+      "holders": 1238,
+      "timestamp": "2026-01-07T08:12:46.138Z"
+    },
+    {
+      "price": 0.00001831672013888707,
+      "change24h": -1.4525332208997666,
+      "volume24h": 218223.4527968746,
+      "marketCap": 18316.72013888707,
+      "holders": 1209,
+      "timestamp": "2026-01-07T08:14:04.030Z"
+    },
+    {
+      "price": 0.000018772002678989818,
+      "change24h": 5.322226425274973,
+      "volume24h": 240662.07378570826,
+      "marketCap": 18772.00267898982,
+      "holders": 1282,
+      "timestamp": "2026-01-07T08:15:31.575Z"
+    },
+    {
+      "price": 0.0000191087027189774,
+      "change24h": 9.181630164534901,
+      "volume24h": 105234.87078813836,
+      "marketCap": 19108.702718977398,
+      "holders": 1275,
+      "timestamp": "2026-01-07T08:16:50.509Z"
+    },
+    {
+      "price": 0.000019536526175293173,
+      "change24h": 3.044963746372763,
+      "volume24h": 111057.43063497766,
+      "marketCap": 19536.526175293173,
+      "holders": 1248,
+      "timestamp": "2026-01-07T08:18:27.227Z"
+    },
+    {
+      "price": 0.000019960126847221348,
+      "change24h": -0.10432645430499154,
+      "volume24h": 138046.33636837447,
+      "marketCap": 19960.12684722135,
+      "holders": 1220,
+      "timestamp": "2026-01-07T08:20:07.600Z"
+    },
+    {
+      "price": 0.00001962201807326407,
+      "change24h": -3.3180467744946416,
+      "volume24h": 197998.42210726714,
+      "marketCap": 19622.01807326407,
+      "holders": 1266,
+      "timestamp": "2026-01-07T08:22:02.112Z"
+    },
+    {
+      "price": 0.00001927765109579572,
+      "change24h": 3.9850099759336635,
+      "volume24h": 130399.20337471568,
+      "marketCap": 19277.651095795718,
+      "holders": 1215,
+      "timestamp": "2026-01-07T08:23:21.343Z"
+    },
+    {
+      "price": 0.000018826967018467098,
+      "change24h": -1.6085910606150244,
+      "volume24h": 152714.840522615,
+      "marketCap": 18826.967018467098,
+      "holders": 1229,
+      "timestamp": "2026-01-07T08:25:02.288Z"
+    },
+    {
+      "price": 0.00001853602494370317,
+      "change24h": 1.0820930786418559,
+      "volume24h": 52104.110290129225,
+      "marketCap": 18536.02494370317,
+      "holders": 1287,
+      "timestamp": "2026-01-07T08:26:45.445Z"
+    },
+    {
+      "price": 0.000019094172023788772,
+      "change24h": 6.297449618064751,
+      "volume24h": 143884.01979378232,
+      "marketCap": 19094.17202378877,
+      "holders": 1225,
+      "timestamp": "2026-01-07T08:28:07.329Z"
+    },
+    {
+      "price": 0.0000195246450672869,
+      "change24h": 12.159140854973298,
+      "volume24h": 193341.14897494484,
+      "marketCap": 19524.6450672869,
+      "holders": 1268,
+      "timestamp": "2026-01-07T08:29:25.744Z"
+    },
+    {
+      "price": 0.000019982550535707533,
+      "change24h": -1.0580673648923378,
+      "volume24h": 90784.29003567598,
+      "marketCap": 19982.550535707534,
+      "holders": 1256,
+      "timestamp": "2026-01-07T08:31:21.606Z"
+    },
+    {
+      "price": 0.00002031534877174357,
+      "change24h": -4.3532066103612435,
+      "volume24h": 82785.44396284607,
+      "marketCap": 20315.34877174357,
+      "holders": 1255,
+      "timestamp": "2026-01-07T08:32:56.503Z"
+    },
+    {
+      "price": 0.000020722464431107646,
+      "change24h": 2.762666626972007,
+      "volume24h": 61179.39904262546,
+      "marketCap": 20722.464431107644,
+      "holders": 1291,
+      "timestamp": "2026-01-07T08:34:38.076Z"
+    },
+    {
+      "price": 0.00002111004770525403,
+      "change24h": -2.8006150552353795,
+      "volume24h": 214101.652769986,
+      "marketCap": 21110.04770525403,
+      "holders": 1282,
+      "timestamp": "2026-01-07T08:35:54.440Z"
+    },
+    {
+      "price": 0.000021504125192884426,
+      "change24h": 3.866312929855914,
+      "volume24h": 114700.80257245069,
+      "marketCap": 21504.125192884425,
+      "holders": 1289,
+      "timestamp": "2026-01-07T08:37:12.269Z"
+    },
+    {
+      "price": 0.00002186167283642807,
+      "change24h": -5.813270709746844,
+      "volume24h": 195127.48855392204,
+      "marketCap": 21861.672836428068,
+      "holders": 1292,
+      "timestamp": "2026-01-07T08:38:55.121Z"
+    },
+    {
+      "price": 0.000022356087406980627,
+      "change24h": -0.09822344341792966,
+      "volume24h": 239709.1075575128,
+      "marketCap": 22356.087406980627,
+      "holders": 1202,
+      "timestamp": "2026-01-07T08:40:13.447Z"
+    },
+    {
+      "price": 0.000022777840193000896,
+      "change24h": -0.3745576813877338,
+      "volume24h": 52832.20738557477,
+      "marketCap": 22777.840193000895,
+      "holders": 1290,
+      "timestamp": "2026-01-07T08:41:32.412Z"
+    },
+    {
+      "price": 0.000023267757645577027,
+      "change24h": -3.676445596653365,
+      "volume24h": 170332.19550057795,
+      "marketCap": 23267.757645577025,
+      "holders": 1207,
+      "timestamp": "2026-01-07T08:42:50.327Z"
+    },
+    {
+      "price": 0.000023657300545787958,
+      "change24h": 1.892601523279177,
+      "volume24h": 65869.14112989977,
+      "marketCap": 23657.30054578796,
+      "holders": 1215,
+      "timestamp": "2026-01-07T08:44:09.239Z"
+    },
+    {
+      "price": 0.000024121029609639998,
+      "change24h": 3.876775555191335,
+      "volume24h": 128901.98881714858,
+      "marketCap": 24121.029609639998,
+      "holders": 1217,
+      "timestamp": "2026-01-07T08:45:56.675Z"
+    },
+    {
+      "price": 0.000024621804082525623,
+      "change24h": -4.668966257489685,
+      "volume24h": 134082.35853105824,
+      "marketCap": 24621.804082525625,
+      "holders": 1237,
+      "timestamp": "2026-01-07T08:47:14.776Z"
+    },
+    {
+      "price": 0.00002510832129484094,
+      "change24h": 4.324444637176318,
+      "volume24h": 144967.13184717592,
+      "marketCap": 25108.32129484094,
+      "holders": 1251,
+      "timestamp": "2026-01-07T08:48:34.859Z"
+    },
+    {
+      "price": 0.0000255859651721937,
+      "change24h": 1.378497759247178,
+      "volume24h": 181615.4109038784,
+      "marketCap": 25585.9651721937,
+      "holders": 1293,
+      "timestamp": "2026-01-07T08:50:15.909Z"
+    },
+    {
+      "price": 0.00002617709284081052,
+      "change24h": -3.3226860043644804,
+      "volume24h": 92401.86656836758,
+      "marketCap": 26177.09284081052,
+      "holders": 1229,
+      "timestamp": "2026-01-07T08:51:34.576Z"
+    },
+    {
+      "price": 0.000027010825107635987,
+      "change24h": 3.6301143594560816,
+      "volume24h": 103018.72426686494,
+      "marketCap": 27010.82510763599,
+      "holders": 1235,
+      "timestamp": "2026-01-07T08:53:13.499Z"
+    },
+    {
+      "price": 0.00002752993911314165,
+      "change24h": 9.48500113744963,
+      "volume24h": 74139.11897596155,
+      "marketCap": 27529.93911314165,
+      "holders": 1277,
+      "timestamp": "2026-01-07T08:54:47.470Z"
+    },
+    {
+      "price": 0.000028086238711449206,
+      "change24h": 12.856819861432133,
+      "volume24h": 154274.71755199882,
+      "marketCap": 28086.238711449205,
+      "holders": 1204,
+      "timestamp": "2026-01-07T08:56:26.184Z"
+    },
+    {
+      "price": 0.00002864423296369732,
+      "change24h": 0.9740366452864369,
+      "volume24h": 106978.54324242804,
+      "marketCap": 28644.23296369732,
+      "holders": 1233,
+      "timestamp": "2026-01-07T08:57:45.412Z"
+    },
+    {
+      "price": 0.000028124110409498293,
+      "change24h": 3.503925800961153,
+      "volume24h": 50566.404595620515,
+      "marketCap": 28124.110409498295,
+      "holders": 1227,
+      "timestamp": "2026-01-07T08:59:23.498Z"
+    },
+    {
+      "price": 0.000027492937024616614,
+      "change24h": 2.156837525823713,
+      "volume24h": 102418.7505190753,
+      "marketCap": 27492.937024616615,
+      "holders": 1275,
+      "timestamp": "2026-01-07T09:01:20.478Z"
+    },
+    {
+      "price": 0.000026881239062433805,
+      "change24h": 7.737639102740018,
+      "volume24h": 149170.21923927707,
+      "marketCap": 26881.239062433804,
+      "holders": 1289,
+      "timestamp": "2026-01-07T09:02:39.020Z"
+    },
+    {
+      "price": 0.000026009897042744516,
+      "change24h": 5.866714435154025,
+      "volume24h": 76024.3300517193,
+      "marketCap": 26009.897042744517,
+      "holders": 1244,
+      "timestamp": "2026-01-07T09:04:00.452Z"
+    },
+    {
+      "price": 0.000025541759815546386,
+      "change24h": -3.916288504935287,
+      "volume24h": 140770.03101373877,
+      "marketCap": 25541.759815546386,
+      "holders": 1277,
+      "timestamp": "2026-01-07T09:05:35.156Z"
+    },
+    {
+      "price": 0.000025073270607623663,
+      "change24h": 1.9141217357187512,
+      "volume24h": 131107.43080394634,
+      "marketCap": 25073.27060762366,
+      "holders": 1250,
+      "timestamp": "2026-01-07T09:21:26.535Z"
+    },
+    {
+      "price": 0.000024239927600391375,
+      "change24h": -0.7608727376473945,
+      "volume24h": 109812.62239480455,
+      "marketCap": 24239.927600391376,
+      "holders": 1204,
+      "timestamp": "2026-01-07T09:30:47.111Z"
+    },
+    {
+      "price": 0.00002339696085874679,
+      "change24h": 10.011647006429737,
+      "volume24h": 203523.85115936567,
+      "marketCap": 23396.96085874679,
+      "holders": 1261,
+      "timestamp": "2026-01-07T09:45:32.231Z"
+    },
+    {
+      "price": 0.000022749296333129837,
+      "change24h": 11.756760414577844,
+      "volume24h": 116147.82882146511,
+      "marketCap": 22749.296333129838,
+      "holders": 1294,
+      "timestamp": "2026-01-07T09:48:36.287Z"
+    },
+    {
+      "price": 0.00002205133168143458,
+      "change24h": -5.216610794820856,
+      "volume24h": 223758.8364022017,
+      "marketCap": 22051.331681434578,
+      "holders": 1265,
+      "timestamp": "2026-01-07T09:50:08.110Z"
+    },
+    {
+      "price": 0.000021701622608877382,
+      "change24h": 11.577657875785693,
+      "volume24h": 99706.62998161081,
+      "marketCap": 21701.62260887738,
+      "holders": 1254,
+      "timestamp": "2026-01-07T09:51:40.658Z"
+    },
+    {
+      "price": 0.000022093019594294344,
+      "change24h": -2.1489789645281023,
+      "volume24h": 183472.14267596012,
+      "marketCap": 22093.019594294343,
+      "holders": 1289,
+      "timestamp": "2026-01-07T09:53:23.057Z"
+    },
+    {
+      "price": 0.000022553604451052943,
+      "change24h": -0.17978267346464905,
+      "volume24h": 215344.8728731499,
+      "marketCap": 22553.604451052943,
+      "holders": 1263,
+      "timestamp": "2026-01-07T09:55:04.466Z"
+    },
+    {
+      "price": 0.00002297532120652629,
+      "change24h": -4.923570637415081,
+      "volume24h": 146149.56242498365,
+      "marketCap": 22975.321206526292,
+      "holders": 1286,
+      "timestamp": "2026-01-07T09:56:23.100Z"
+    },
+    {
+      "price": 0.000023419018820954646,
+      "change24h": -4.745225334791595,
+      "volume24h": 132680.51900817774,
+      "marketCap": 23419.018820954647,
+      "holders": 1227,
+      "timestamp": "2026-01-07T09:57:40.973Z"
+    },
+    {
+      "price": 0.000023895237968743856,
+      "change24h": -4.673224259722591,
+      "volume24h": 53346.01024920076,
+      "marketCap": 23895.237968743855,
+      "holders": 1225,
+      "timestamp": "2026-01-07T09:59:21.278Z"
+    },
+    {
+      "price": 0.000024337617624275478,
+      "change24h": 1.0174211242177111,
+      "volume24h": 242206.8420373507,
+      "marketCap": 24337.617624275477,
+      "holders": 1263,
+      "timestamp": "2026-01-07T10:00:49.166Z"
+    },
+    {
+      "price": 0.000024729446224984802,
+      "change24h": 7.90645726491355,
+      "volume24h": 61804.34060677305,
+      "marketCap": 24729.4462249848,
+      "holders": 1219,
+      "timestamp": "2026-01-07T10:02:08.616Z"
+    },
+    {
+      "price": 0.000025224567168918992,
+      "change24h": 5.9394549509853825,
+      "volume24h": 183886.75897165327,
+      "marketCap": 25224.56716891899,
+      "holders": 1240,
+      "timestamp": "2026-01-07T10:03:38.106Z"
+    },
+    {
+      "price": 0.00002598928585734978,
+      "change24h": 5.937177162397761,
+      "volume24h": 184543.14810780974,
+      "marketCap": 25989.28585734978,
+      "holders": 1221,
+      "timestamp": "2026-01-07T10:05:16.931Z"
+    },
+    {
+      "price": 0.00002685134313267518,
+      "change24h": 1.2234387450607354,
+      "volume24h": 198652.0660890779,
+      "marketCap": 26851.34313267518,
+      "holders": 1277,
+      "timestamp": "2026-01-07T10:06:57.307Z"
+    },
+    {
+      "price": 0.000027459879013324557,
+      "change24h": 8.529215435810674,
+      "volume24h": 135231.03612428342,
+      "marketCap": 27459.879013324557,
+      "holders": 1235,
+      "timestamp": "2026-01-07T10:08:38.999Z"
+    },
+    {
+      "price": 0.000028065042227544005,
+      "change24h": 10.83937734720896,
+      "volume24h": 206010.90149019266,
+      "marketCap": 28065.042227544003,
+      "holders": 1243,
+      "timestamp": "2026-01-07T10:10:20.998Z"
+    },
+    {
+      "price": 0.000028670793458869787,
+      "change24h": -0.37743469593671697,
+      "volume24h": 186662.36102025153,
+      "marketCap": 28670.793458869786,
+      "holders": 1286,
+      "timestamp": "2026-01-07T10:11:53.636Z"
+    },
+    {
+      "price": 0.000029654588942534753,
+      "change24h": -0.6711184838436257,
+      "volume24h": 136935.03117492478,
+      "marketCap": 29654.588942534752,
+      "holders": 1225,
+      "timestamp": "2026-01-07T10:13:37.127Z"
+    },
+    {
+      "price": 0.000030198253720336066,
+      "change24h": 11.179285705113031,
+      "volume24h": 207845.95876009672,
+      "marketCap": 30198.253720336066,
+      "holders": 1208,
+      "timestamp": "2026-01-07T10:15:27.844Z"
+    },
+    {
+      "price": 0.000030876469307979984,
+      "change24h": 6.43547748133407,
+      "volume24h": 119818.49643255517,
+      "marketCap": 30876.469307979984,
+      "holders": 1259,
+      "timestamp": "2026-01-07T10:16:47.267Z"
+    },
+    {
+      "price": 0.0000319584646504896,
+      "change24h": -4.928317796547716,
+      "volume24h": 176552.65376135462,
+      "marketCap": 31958.4646504896,
+      "holders": 1244,
+      "timestamp": "2026-01-07T10:18:20.955Z"
+    },
+    {
+      "price": 0.00003255753193460672,
+      "change24h": 13.690592672196452,
+      "volume24h": 94887.3584380286,
+      "marketCap": 32557.53193460672,
+      "holders": 1269,
+      "timestamp": "2026-01-07T10:20:00.570Z"
+    },
+    {
+      "price": 0.00003330089747592716,
+      "change24h": 8.157989870299986,
+      "volume24h": 105386.39387406403,
+      "marketCap": 33300.897475927166,
+      "holders": 1215,
+      "timestamp": "2026-01-07T10:21:54.734Z"
+    },
+    {
+      "price": 0.000033973425168685254,
+      "change24h": -1.416457625503017,
+      "volume24h": 189650.78131020424,
+      "marketCap": 33973.42516868525,
+      "holders": 1282,
+      "timestamp": "2026-01-07T10:23:12.163Z"
+    },
+    {
+      "price": 0.00003394162914822135,
+      "change24h": 4.9812139107742395,
+      "volume24h": 214359.37035862144,
+      "marketCap": 33941.62914822136,
+      "holders": 1254,
+      "timestamp": "2026-01-07T10:24:41.029Z"
+    },
+    {
+      "price": 0.00003334944682886113,
+      "change24h": 11.363977159618756,
+      "volume24h": 85367.4431587476,
+      "marketCap": 33349.44682886113,
+      "holders": 1214,
+      "timestamp": "2026-01-07T10:25:59.208Z"
+    },
+    {
+      "price": 0.00003268611434523228,
+      "change24h": -2.623406763669948,
+      "volume24h": 144802.6197138399,
+      "marketCap": 32686.114345232283,
+      "holders": 1285,
+      "timestamp": "2026-01-07T10:27:37.377Z"
+    },
+    {
+      "price": 0.00003176847424142012,
+      "change24h": 9.528561716202722,
+      "volume24h": 170597.25060365943,
+      "marketCap": 31768.474241420117,
+      "holders": 1235,
+      "timestamp": "2026-01-07T10:29:02.772Z"
+    },
+    {
+      "price": 0.00003082552665046274,
+      "change24h": 1.4944945037208723,
+      "volume24h": 174006.5771737983,
+      "marketCap": 30825.52665046274,
+      "holders": 1238,
+      "timestamp": "2026-01-07T10:30:24.134Z"
+    },
+    {
+      "price": 0.000030298660673112088,
+      "change24h": 7.728877327091058,
+      "volume24h": 140058.4989709269,
+      "marketCap": 30298.66067311209,
+      "holders": 1282,
+      "timestamp": "2026-01-07T10:32:16.106Z"
+    },
+    {
+      "price": 0.000029385082456019152,
+      "change24h": -5.52205746732228,
+      "volume24h": 136519.37574928446,
+      "marketCap": 29385.082456019154,
+      "holders": 1272,
+      "timestamp": "2026-01-07T10:33:38.358Z"
+    },
+    {
+      "price": 0.000030095987327156876,
+      "change24h": 13.565504585644792,
+      "volume24h": 87830.70409062659,
+      "marketCap": 30095.987327156876,
+      "holders": 1200,
+      "timestamp": "2026-01-07T10:34:57.953Z"
+    },
+    {
+      "price": 0.00003059323490553387,
+      "change24h": -1.0309313478751025,
+      "volume24h": 197521.683705516,
+      "marketCap": 30593.23490553387,
+      "holders": 1272,
+      "timestamp": "2026-01-07T10:36:38.286Z"
+    },
+    {
+      "price": 0.00003124449106649122,
+      "change24h": 2.120628480620671,
+      "volume24h": 73051.5010973353,
+      "marketCap": 31244.491066491224,
+      "holders": 1200,
+      "timestamp": "2026-01-07T10:37:58.502Z"
+    },
+    {
+      "price": 0.00003223762905503502,
+      "change24h": 5.8331113905161205,
+      "volume24h": 213667.0263011976,
+      "marketCap": 32237.62905503502,
+      "holders": 1229,
+      "timestamp": "2026-01-07T10:39:31.988Z"
+    },
+    {
+      "price": 0.00003285875542111626,
+      "change24h": -4.870525890159848,
+      "volume24h": 152771.60134183784,
+      "marketCap": 32858.755421116264,
+      "holders": 1205,
+      "timestamp": "2026-01-07T10:41:05.287Z"
+    },
+    {
+      "price": 0.000032837444832561164,
+      "change24h": 13.186607517628008,
+      "volume24h": 76545.5526489851,
+      "marketCap": 32837.44483256117,
+      "holders": 1281,
+      "timestamp": "2026-01-07T10:42:46.057Z"
+    },
+    {
+      "price": 0.00003219792434147466,
+      "change24h": -4.084241479692153,
+      "volume24h": 190128.67011982005,
+      "marketCap": 32197.924341474663,
+      "holders": 1227,
+      "timestamp": "2026-01-07T10:44:34.468Z"
+    },
+    {
+      "price": 0.00003128970492149731,
+      "change24h": -5.355513100263797,
+      "volume24h": 101560.19368209592,
+      "marketCap": 31289.704921497312,
+      "holders": 1218,
+      "timestamp": "2026-01-07T10:45:54.429Z"
+    },
+    {
+      "price": 0.00003105144576794365,
+      "change24h": 0.5995642220154418,
+      "volume24h": 186418.63006728204,
+      "marketCap": 31051.445767943653,
+      "holders": 1210,
+      "timestamp": "2026-01-07T10:47:25.803Z"
+    },
+    {
+      "price": 0.00003169235981837772,
+      "change24h": -0.919562416685985,
+      "volume24h": 129266.42489264187,
+      "marketCap": 31692.359818377718,
+      "holders": 1254,
+      "timestamp": "2026-01-07T11:02:27.954Z"
+    },
+    {
+      "price": 0.00003266772392922539,
+      "change24h": 7.996987370197156,
+      "volume24h": 146680.46596600077,
+      "marketCap": 32667.723929225387,
+      "holders": 1273,
+      "timestamp": "2026-01-07T11:07:09.314Z"
+    },
+    {
+      "price": 0.00003335267073102288,
+      "change24h": 6.4735051341875,
+      "volume24h": 74518.33594934987,
+      "marketCap": 33352.67073102288,
+      "holders": 1224,
+      "timestamp": "2026-01-07T11:23:37.737Z"
+    },
+    {
+      "price": 0.00003429164660352617,
+      "change24h": 5.520171845175045,
+      "volume24h": 76072.30755463259,
+      "marketCap": 34291.64660352617,
+      "holders": 1244,
+      "timestamp": "2026-01-07T11:40:25.638Z"
+    },
+    {
+      "price": 0.00003487763732173736,
+      "change24h": 11.941315768349586,
+      "volume24h": 234410.15495454284,
+      "marketCap": 34877.63732173736,
+      "holders": 1257,
+      "timestamp": "2026-01-07T11:42:08.448Z"
+    },
+    {
+      "price": 0.000035734591980734256,
+      "change24h": -1.8170423867338348,
+      "volume24h": 74211.46590454795,
+      "marketCap": 35734.59198073426,
+      "holders": 1293,
+      "timestamp": "2026-01-07T11:43:27.398Z"
+    },
+    {
+      "price": 0.00003638882581782596,
+      "change24h": 5.6675402536492605,
+      "volume24h": 119319.89207617464,
+      "marketCap": 36388.82581782596,
+      "holders": 1204,
+      "timestamp": "2026-01-07T11:44:45.133Z"
+    },
+    {
+      "price": 0.00003703735065021739,
+      "change24h": -4.293083985236538,
+      "volume24h": 157662.2692496678,
+      "marketCap": 37037.35065021739,
+      "holders": 1290,
+      "timestamp": "2026-01-07T11:46:29.860Z"
+    },
+    {
+      "price": 0.0000377196474585304,
+      "change24h": -2.3078521500743,
+      "volume24h": 192582.41428788044,
+      "marketCap": 37719.6474585304,
+      "holders": 1235,
+      "timestamp": "2026-01-07T11:47:48.820Z"
+    },
+    {
+      "price": 0.000038402163965998605,
+      "change24h": 2.4646705530654476,
+      "volume24h": 118169.19418643441,
+      "marketCap": 38402.1639659986,
+      "holders": 1241,
+      "timestamp": "2026-01-07T11:49:06.652Z"
+    },
+    {
+      "price": 0.00003920273373059903,
+      "change24h": 2.158565402252904,
+      "volume24h": 178356.94889917097,
+      "marketCap": 39202.73373059903,
+      "holders": 1296,
+      "timestamp": "2026-01-07T11:50:57.439Z"
+    },
+    {
+      "price": 0.00004004933543282082,
+      "change24h": -2.797636059979557,
+      "volume24h": 120987.55512608499,
+      "marketCap": 40049.335432820815,
+      "holders": 1297,
+      "timestamp": "2026-01-07T11:52:41.115Z"
+    },
+    {
+      "price": 0.0000407440084160864,
+      "change24h": 3.0630419407603036,
+      "volume24h": 119049.8592534782,
+      "marketCap": 40744.0084160864,
+      "holders": 1222,
+      "timestamp": "2026-01-07T11:53:59.954Z"
+    },
+    {
+      "price": 0.000041530593658203695,
+      "change24h": 2.045101778242401,
+      "volume24h": 163619.58840254758,
+      "marketCap": 41530.593658203696,
+      "holders": 1231,
+      "timestamp": "2026-01-07T11:55:17.091Z"
+    },
+    {
+      "price": 0.000042497047056596544,
+      "change24h": -0.19062242924613781,
+      "volume24h": 177058.97378667537,
+      "marketCap": 42497.047056596544,
+      "holders": 1231,
+      "timestamp": "2026-01-07T11:56:45.794Z"
+    },
+    {
+      "price": 0.000043373852589535226,
+      "change24h": 11.879041666943536,
+      "volume24h": 179115.31004775362,
+      "marketCap": 43373.85258953523,
+      "holders": 1242,
+      "timestamp": "2026-01-07T11:58:04.285Z"
+    },
+    {
+      "price": 0.000044806069747795536,
+      "change24h": 6.300512112499125,
+      "volume24h": 141365.88980589912,
+      "marketCap": 44806.06974779553,
+      "holders": 1236,
+      "timestamp": "2026-01-07T11:59:39.862Z"
+    },
+    {
+      "price": 0.00004615794155601082,
+      "change24h": 2.1202848733239774,
+      "volume24h": 83809.11582187208,
+      "marketCap": 46157.94155601082,
+      "holders": 1260,
+      "timestamp": "2026-01-07T12:00:59.240Z"
+    },
+    {
+      "price": 0.000046521380901147575,
+      "change24h": 13.95176850241838,
+      "volume24h": 119708.14359215864,
+      "marketCap": 46521.380901147575,
+      "holders": 1209,
+      "timestamp": "2026-01-07T12:02:14.816Z"
+    },
+    {
+      "price": 0.00004687312375021194,
+      "change24h": -5.453010777964828,
+      "volume24h": 114462.70289682,
+      "marketCap": 46873.12375021194,
+      "holders": 1231,
+      "timestamp": "2026-01-07T12:03:34.553Z"
+    },
+    {
+      "price": 0.000048381402478139585,
+      "change24h": 3.7734382798765473,
+      "volume24h": 154845.36313396686,
+      "marketCap": 48381.402478139586,
+      "holders": 1217,
+      "timestamp": "2026-01-07T12:04:55.819Z"
+    },
+    {
+      "price": 0.00004943053195047947,
+      "change24h": -4.470239069267815,
+      "volume24h": 59995.711008292354,
+      "marketCap": 49430.53195047947,
+      "holders": 1259,
+      "timestamp": "2026-01-07T12:06:34.106Z"
+    },
+    {
+      "price": 0.00005037230219699762,
+      "change24h": 0.9125663269968209,
+      "volume24h": 186458.45065252262,
+      "marketCap": 50372.30219699762,
+      "holders": 1210,
+      "timestamp": "2026-01-07T12:07:53.991Z"
+    },
+    {
+      "price": 0.000051330150577896985,
+      "change24h": 1.2232070879086565,
+      "volume24h": 222587.90224097474,
+      "marketCap": 51330.15057789699,
+      "holders": 1288,
+      "timestamp": "2026-01-07T12:09:13.401Z"
+    },
+    {
+      "price": 0.00005235830521972262,
+      "change24h": 11.739855911591551,
+      "volume24h": 160271.96645533922,
+      "marketCap": 52358.30521972262,
+      "holders": 1294,
+      "timestamp": "2026-01-07T12:10:39.643Z"
+    },
+    {
+      "price": 0.00005338170624086507,
+      "change24h": -3.1969583899407708,
+      "volume24h": 52649.05772854891,
+      "marketCap": 53381.70624086507,
+      "holders": 1200,
+      "timestamp": "2026-01-07T12:11:58.332Z"
+    },
+    {
+      "price": 0.000052126531268571564,
+      "change24h": -4.36220525966149,
+      "volume24h": 53129.69543004997,
+      "marketCap": 52126.53126857156,
+      "holders": 1220,
+      "timestamp": "2026-01-07T12:13:15.949Z"
+    },
+    {
+      "price": 0.00005091656470033117,
+      "change24h": 4.024136872610714,
+      "volume24h": 247700.13059866452,
+      "marketCap": 50916.564700331175,
+      "holders": 1235,
+      "timestamp": "2026-01-07T12:14:35.086Z"
+    },
+    {
+      "price": 0.000049486462869544234,
+      "change24h": 2.7063362182471993,
+      "volume24h": 198007.66554441786,
+      "marketCap": 49486.46286954424,
+      "holders": 1274,
+      "timestamp": "2026-01-07T12:16:16.798Z"
+    },
+    {
+      "price": 0.00004828581436784053,
+      "change24h": -1.3202714681449101,
+      "volume24h": 72770.24892917412,
+      "marketCap": 48285.81436784053,
+      "holders": 1288,
+      "timestamp": "2026-01-07T12:17:54.596Z"
+    },
+    {
+      "price": 0.00004744246859276242,
+      "change24h": 5.729180275246787,
+      "volume24h": 133377.50717288684,
+      "marketCap": 47442.46859276242,
+      "holders": 1250,
+      "timestamp": "2026-01-07T12:19:12.435Z"
+    },
+    {
+      "price": 0.00004652838304971579,
+      "change24h": 2.282462659846142,
+      "volume24h": 203767.84574847997,
+      "marketCap": 46528.38304971579,
+      "holders": 1287,
+      "timestamp": "2026-01-07T12:20:58.211Z"
+    },
+    {
+      "price": 0.00004555640990258582,
+      "change24h": 13.441262581094193,
+      "volume24h": 174414.68922720107,
+      "marketCap": 45556.40990258582,
+      "holders": 1267,
+      "timestamp": "2026-01-07T12:22:17.765Z"
+    },
+    {
+      "price": 0.000044554962274917817,
+      "change24h": 10.500618903295056,
+      "volume24h": 238399.4475214429,
+      "marketCap": 44554.962274917816,
+      "holders": 1208,
+      "timestamp": "2026-01-07T12:23:37.496Z"
+    },
+    {
+      "price": 0.00004367552240458951,
+      "change24h": 9.16323918776348,
+      "volume24h": 75243.02155303817,
+      "marketCap": 43675.52240458951,
+      "holders": 1285,
+      "timestamp": "2026-01-07T12:25:27.058Z"
+    },
+    {
+      "price": 0.00004240213659411861,
+      "change24h": 13.567983127959495,
+      "volume24h": 156295.24196317795,
+      "marketCap": 42402.13659411861,
+      "holders": 1211,
+      "timestamp": "2026-01-07T12:27:07.505Z"
+    },
+    {
+      "price": 0.000041606561882092965,
+      "change24h": -1.2219570371517186,
+      "volume24h": 149325.53180004383,
+      "marketCap": 41606.56188209297,
+      "holders": 1262,
+      "timestamp": "2026-01-07T12:28:49.063Z"
+    },
+    {
+      "price": 0.0000406324211157971,
+      "change24h": 12.425135946635816,
+      "volume24h": 81854.93968535727,
+      "marketCap": 40632.4211157971,
+      "holders": 1244,
+      "timestamp": "2026-01-07T12:30:08.053Z"
+    },
+    {
+      "price": 0.000039891718641836294,
+      "change24h": -0.3568187442726434,
+      "volume24h": 68159.65460454207,
+      "marketCap": 39891.71864183629,
+      "holders": 1212,
+      "timestamp": "2026-01-07T12:31:24.200Z"
+    },
+    {
+      "price": 0.00003907706699488614,
+      "change24h": 2.8173397220230436,
+      "volume24h": 125568.6888553168,
+      "marketCap": 39077.06699488614,
+      "holders": 1261,
+      "timestamp": "2026-01-07T12:32:42.255Z"
+    },
+    {
+      "price": 0.00003823513854263837,
+      "change24h": 12.334815965115515,
+      "volume24h": 167669.36176218858,
+      "marketCap": 38235.13854263837,
+      "holders": 1252,
+      "timestamp": "2026-01-07T12:34:00.020Z"
+    },
+    {
+      "price": 0.000037461939379686186,
+      "change24h": 6.037161577731754,
+      "volume24h": 235155.01601851295,
+      "marketCap": 37461.939379686184,
+      "holders": 1200,
+      "timestamp": "2026-01-07T12:35:37.262Z"
+    },
+    {
+      "price": 0.00003667876685309744,
+      "change24h": -3.8764348430749616,
+      "volume24h": 100016.34644751789,
+      "marketCap": 36678.76685309744,
+      "holders": 1253,
+      "timestamp": "2026-01-07T12:36:55.056Z"
+    },
+    {
+      "price": 0.000036074315697840144,
+      "change24h": 9.5391124102799,
+      "volume24h": 218667.7768517782,
+      "marketCap": 36074.315697840146,
+      "holders": 1280,
+      "timestamp": "2026-01-07T12:38:11.869Z"
+    },
+    {
+      "price": 0.000035322859182055876,
+      "change24h": 12.621978293691889,
+      "volume24h": 50151.836789021174,
+      "marketCap": 35322.85918205588,
+      "holders": 1255,
+      "timestamp": "2026-01-07T12:44:33.183Z"
+    },
+    {
+      "price": 0.00003533416004388584,
+      "change24h": 13.973323822114851,
+      "volume24h": 102727.03782311814,
+      "marketCap": 35334.160043885844,
+      "holders": 1261,
+      "timestamp": "2026-01-07T13:01:25.314Z"
+    },
+    {
+      "price": 0.00003608357878729384,
+      "change24h": 8.646592647124704,
+      "volume24h": 237118.4891042845,
+      "marketCap": 36083.578787293845,
+      "holders": 1227,
+      "timestamp": "2026-01-07T13:02:43.221Z"
+    },
+    {
+      "price": 0.00003679033256510843,
+      "change24h": 1.397978679321138,
+      "volume24h": 144421.96572136122,
+      "marketCap": 36790.33256510843,
+      "holders": 1281,
+      "timestamp": "2026-01-07T13:04:19.609Z"
+    },
+    {
+      "price": 0.000037482333488276414,
+      "change24h": 6.427118430270141,
+      "volume24h": 197949.4553957502,
+      "marketCap": 37482.33348827641,
+      "holders": 1232,
+      "timestamp": "2026-01-07T13:06:08.372Z"
+    },
+    {
+      "price": 0.00003837313963094838,
+      "change24h": -4.010207466991954,
+      "volume24h": 213483.86715601696,
+      "marketCap": 38373.139630948375,
+      "holders": 1283,
+      "timestamp": "2026-01-07T13:07:48.025Z"
+    },
+    {
+      "price": 0.000039288911164544816,
+      "change24h": 9.649606376205469,
+      "volume24h": 84888.70420279854,
+      "marketCap": 39288.911164544814,
+      "holders": 1236,
+      "timestamp": "2026-01-07T13:09:06.514Z"
+    },
+    {
+      "price": 0.00003995338798664851,
+      "change24h": -3.2344604470754748,
+      "volume24h": 108932.69197087103,
+      "marketCap": 39953.38798664851,
+      "holders": 1241,
+      "timestamp": "2026-01-07T13:10:45.870Z"
+    },
+    {
+      "price": 0.00004062096452901758,
+      "change24h": -4.552564211493491,
+      "volume24h": 245934.80581747636,
+      "marketCap": 40620.96452901758,
+      "holders": 1246,
+      "timestamp": "2026-01-07T13:12:04.891Z"
+    },
+    {
+      "price": 0.00004116117360820357,
+      "change24h": 5.464992070709128,
+      "volume24h": 219026.70408973494,
+      "marketCap": 41161.17360820357,
+      "holders": 1279,
+      "timestamp": "2026-01-07T13:13:47.916Z"
+    },
+    {
+      "price": 0.00004191597578263907,
+      "change24h": 12.024505993849615,
+      "volume24h": 93400.47021413306,
+      "marketCap": 41915.97578263907,
+      "holders": 1277,
+      "timestamp": "2026-01-07T13:15:15.561Z"
+    },
+    {
+      "price": 0.000043133612537884,
+      "change24h": 6.132511952947878,
+      "volume24h": 114121.45243487234,
+      "marketCap": 43133.612537884,
+      "holders": 1261,
+      "timestamp": "2026-01-07T13:16:57.870Z"
+    },
+    {
+      "price": 0.00004386876401615455,
+      "change24h": 0.24433299173153622,
+      "volume24h": 63826.58506192358,
+      "marketCap": 43868.76401615455,
+      "holders": 1249,
+      "timestamp": "2026-01-07T13:18:52.286Z"
+    },
+    {
+      "price": 0.00004481399790648366,
+      "change24h": 1.4428176238420798,
+      "volume24h": 149282.03469095883,
+      "marketCap": 44813.99790648366,
+      "holders": 1277,
+      "timestamp": "2026-01-07T13:20:09.473Z"
+    },
+    {
+      "price": 0.0000455720301933127,
+      "change24h": 11.991659050268137,
+      "volume24h": 119353.99900096544,
+      "marketCap": 45572.0301933127,
+      "holders": 1253,
+      "timestamp": "2026-01-07T13:21:28.261Z"
+    },
+    {
+      "price": 0.00004690616664545918,
+      "change24h": 9.35227460146401,
+      "volume24h": 157173.8880821829,
+      "marketCap": 46906.166645459176,
+      "holders": 1298,
+      "timestamp": "2026-01-07T13:22:50.283Z"
+    },
+    {
+      "price": 0.00004834522026721891,
+      "change24h": 11.660676661985034,
+      "volume24h": 97363.34165947963,
+      "marketCap": 48345.22026721891,
+      "holders": 1219,
+      "timestamp": "2026-01-07T13:24:10.737Z"
+    },
+    {
+      "price": 0.000049933006380056976,
+      "change24h": -3.5818846065105827,
+      "volume24h": 83176.19924219797,
+      "marketCap": 49933.00638005698,
+      "holders": 1233,
+      "timestamp": "2026-01-07T13:25:45.702Z"
+    },
+    {
+      "price": 0.00005113823625034029,
+      "change24h": 8.353211998588042,
+      "volume24h": 183303.69017013998,
+      "marketCap": 51138.23625034029,
+      "holders": 1286,
+      "timestamp": "2026-01-07T13:27:29.380Z"
+    },
+    {
+      "price": 0.0000519953123003607,
+      "change24h": -1.6672900998609153,
+      "volume24h": 138450.40908871798,
+      "marketCap": 51995.3123003607,
+      "holders": 1299,
+      "timestamp": "2026-01-07T13:29:09.416Z"
+    },
+    {
+      "price": 0.00005341770983519983,
+      "change24h": 12.182904028125856,
+      "volume24h": 220286.0140591506,
+      "marketCap": 53417.70983519983,
+      "holders": 1281,
+      "timestamp": "2026-01-07T13:30:56.116Z"
+    },
+    {
+      "price": 0.00005442281170606301,
+      "change24h": -2.0456678973110796,
+      "volume24h": 195787.21258852218,
+      "marketCap": 54422.81170606301,
+      "holders": 1283,
+      "timestamp": "2026-01-07T13:32:33.138Z"
+    },
+    {
+      "price": 0.000055531617108268255,
+      "change24h": 8.524248758065221,
+      "volume24h": 163440.66956037877,
+      "marketCap": 55531.617108268256,
+      "holders": 1246,
+      "timestamp": "2026-01-07T13:34:18.844Z"
+    },
+    {
+      "price": 0.000054504072815013186,
+      "change24h": 11.548761236904799,
+      "volume24h": 139215.1473547535,
+      "marketCap": 54504.07281501318,
+      "holders": 1238,
+      "timestamp": "2026-01-07T13:35:59.723Z"
+    },
+    {
+      "price": 0.00005323432596512774,
+      "change24h": -1.5051418054572052,
+      "volume24h": 158126.2967327623,
+      "marketCap": 53234.32596512774,
+      "holders": 1240,
+      "timestamp": "2026-01-07T13:37:18.368Z"
+    },
+    {
+      "price": 0.00005224648599297996,
+      "change24h": 6.558916530558397,
+      "volume24h": 96685.63719610599,
+      "marketCap": 52246.48599297996,
+      "holders": 1219,
+      "timestamp": "2026-01-07T13:38:38.731Z"
+    },
+    {
+      "price": 0.00005257580812382658,
+      "change24h": 13.288842179542506,
+      "volume24h": 201534.36787977227,
+      "marketCap": 52575.80812382658,
+      "holders": 1293,
+      "timestamp": "2026-01-07T13:40:19.528Z"
+    },
+    {
+      "price": 0.00005343713529773498,
+      "change24h": 1.562876598555597,
+      "volume24h": 219405.43275968503,
+      "marketCap": 53437.13529773498,
+      "holders": 1271,
+      "timestamp": "2026-01-07T13:41:38.563Z"
+    },
+    {
+      "price": 0.000053383464174629736,
+      "change24h": 9.508897313879261,
+      "volume24h": 141210.8488366634,
+      "marketCap": 53383.464174629735,
+      "holders": 1240,
+      "timestamp": "2026-01-07T13:42:55.509Z"
+    },
+    {
+      "price": 0.00005243043118573453,
+      "change24h": 0.4358900985240688,
+      "volume24h": 96250.80751229305,
+      "marketCap": 52430.43118573453,
+      "holders": 1283,
+      "timestamp": "2026-01-07T13:44:30.830Z"
+    },
+    {
+      "price": 0.000050864196427666544,
+      "change24h": -4.706113138717441,
+      "volume24h": 155144.99258764827,
+      "marketCap": 50864.196427666546,
+      "holders": 1213,
+      "timestamp": "2026-01-07T13:46:05.264Z"
+    },
+    {
+      "price": 0.0000493007582817417,
+      "change24h": 1.5819484937447237,
+      "volume24h": 140187.74245994125,
+      "marketCap": 49300.7582817417,
+      "holders": 1247,
+      "timestamp": "2026-01-07T13:47:28.887Z"
+    },
+    {
+      "price": 0.00005031316023804209,
+      "change24h": -5.65368446104218,
+      "volume24h": 191191.01450336663,
+      "marketCap": 50313.16023804209,
+      "holders": 1231,
+      "timestamp": "2026-01-07T13:48:48.262Z"
+    },
+    {
+      "price": 0.00005131827432047964,
+      "change24h": 1.6677410536031056,
+      "volume24h": 226854.9162475934,
+      "marketCap": 51318.27432047964,
+      "holders": 1223,
+      "timestamp": "2026-01-07T13:50:08.414Z"
+    },
+    {
+      "price": 0.0000523525795846426,
+      "change24h": 2.6553723190963288,
+      "volume24h": 221231.24811631147,
+      "marketCap": 52352.5795846426,
+      "holders": 1283,
+      "timestamp": "2026-01-07T13:51:27.966Z"
+    },
+    {
+      "price": 0.00005325840425195044,
+      "change24h": 11.218757570008776,
+      "volume24h": 240641.22531150447,
+      "marketCap": 53258.404251950444,
+      "holders": 1236,
+      "timestamp": "2026-01-07T13:52:47.361Z"
+    },
+    {
+      "price": 0.00005427131910098824,
+      "change24h": -5.531284796842496,
+      "volume24h": 77366.51414475036,
+      "marketCap": 54271.319100988236,
+      "holders": 1228,
+      "timestamp": "2026-01-07T13:54:07.295Z"
+    },
+    {
+      "price": 0.000055217116650047325,
+      "change24h": 11.142168511368578,
+      "volume24h": 176371.08561720775,
+      "marketCap": 55217.11665004733,
+      "holders": 1287,
+      "timestamp": "2026-01-07T13:55:25.981Z"
+    },
+    {
+      "price": 0.0000535503803016941,
+      "change24h": 2.5641783170260055,
+      "volume24h": 111525.9508873621,
+      "marketCap": 53550.3803016941,
+      "holders": 1296,
+      "timestamp": "2026-01-07T13:56:45.377Z"
+    },
+    {
+      "price": 0.00005174078672768155,
+      "change24h": 4.579869301475456,
+      "volume24h": 107897.9392537818,
+      "marketCap": 51740.78672768155,
+      "holders": 1256,
+      "timestamp": "2026-01-07T13:58:23.120Z"
+    },
+    {
+      "price": 0.000050830008692073035,
+      "change24h": 3.832467378638457,
+      "volume24h": 245804.42457757573,
+      "marketCap": 50830.00869207303,
+      "holders": 1271,
+      "timestamp": "2026-01-07T13:59:49.832Z"
+    },
+    {
+      "price": 0.00004961877554739437,
+      "change24h": -3.7479698109603463,
+      "volume24h": 138455.78823069745,
+      "marketCap": 49618.77554739437,
+      "holders": 1270,
+      "timestamp": "2026-01-07T14:01:33.668Z"
+    },
+    {
+      "price": 0.00004823029413208278,
+      "change24h": -2.5771760544382136,
+      "volume24h": 139787.68348679732,
+      "marketCap": 48230.29413208278,
+      "holders": 1291,
+      "timestamp": "2026-01-07T14:02:54.773Z"
+    },
+    {
+      "price": 0.000047217036750810035,
+      "change24h": -5.78873980660923,
+      "volume24h": 249102.5510167429,
+      "marketCap": 47217.03675081004,
+      "holders": 1213,
+      "timestamp": "2026-01-07T14:16:13.801Z"
+    },
+    {
+      "price": 0.00004614743970418869,
+      "change24h": -2.3525503292046848,
+      "volume24h": 186323.92275104806,
+      "marketCap": 46147.43970418869,
+      "holders": 1230,
+      "timestamp": "2026-01-07T14:18:54.397Z"
+    },
+    {
+      "price": 0.00004524691202842703,
+      "change24h": 8.29466739591653,
+      "volume24h": 235070.94666410793,
+      "marketCap": 45246.91202842703,
+      "holders": 1259,
+      "timestamp": "2026-01-07T14:20:13.314Z"
+    },
+    {
+      "price": 0.00004440705610264312,
+      "change24h": 10.55045723102674,
+      "volume24h": 192989.72336270337,
+      "marketCap": 44407.05610264312,
+      "holders": 1267,
+      "timestamp": "2026-01-07T14:27:53.564Z"
+    },
+    {
+      "price": 0.000043249076674978174,
+      "change24h": -1.1370513082528266,
+      "volume24h": 68587.47537350185,
+      "marketCap": 43249.076674978176,
+      "holders": 1253,
+      "timestamp": "2026-01-07T14:30:20.684Z"
+    },
+    {
+      "price": 0.00004238056482316546,
+      "change24h": -1.2588024269901232,
+      "volume24h": 244001.48263064274,
+      "marketCap": 42380.56482316546,
+      "holders": 1216,
+      "timestamp": "2026-01-07T14:31:55.651Z"
+    },
+    {
+      "price": 0.000043810497983418705,
+      "change24h": 5.271867766922017,
+      "volume24h": 144044.96578564632,
+      "marketCap": 43810.4979834187,
+      "holders": 1233,
+      "timestamp": "2026-01-07T14:34:32.204Z"
+    },
+    {
+      "price": 0.00004458278417471807,
+      "change24h": -4.655672345327427,
+      "volume24h": 102814.99919219894,
+      "marketCap": 44582.784174718065,
+      "holders": 1275,
+      "timestamp": "2026-01-07T14:36:50.304Z"
+    },
+    {
+      "price": 0.000045659261116681545,
+      "change24h": 3.9602819378244245,
+      "volume24h": 165462.97678705934,
+      "marketCap": 45659.26111668155,
+      "holders": 1269,
+      "timestamp": "2026-01-07T14:38:09.708Z"
+    },
+    {
+      "price": 0.00004654960542025335,
+      "change24h": 6.37050890967449,
+      "volume24h": 220452.6004516474,
+      "marketCap": 46549.60542025335,
+      "holders": 1235,
+      "timestamp": "2026-01-07T14:39:59.265Z"
+    },
+    {
+      "price": 0.000046471771893543023,
+      "change24h": 4.991456883838436,
+      "volume24h": 69025.93192067767,
+      "marketCap": 46471.771893543024,
+      "holders": 1270,
+      "timestamp": "2026-01-07T14:41:37.203Z"
+    },
+    {
+      "price": 0.00004557523020115415,
+      "change24h": 2.1231851733694898,
+      "volume24h": 145391.8720713137,
+      "marketCap": 45575.23020115415,
+      "holders": 1219,
+      "timestamp": "2026-01-07T14:43:14.164Z"
+    },
+    {
+      "price": 0.00004465886599472526,
+      "change24h": 5.14146126865732,
+      "volume24h": 130727.71377349197,
+      "marketCap": 44658.86599472526,
+      "holders": 1290,
+      "timestamp": "2026-01-07T14:45:02.448Z"
+    },
+    {
+      "price": 0.00004348695785314367,
+      "change24h": 3.96500853050337,
+      "volume24h": 65121.490921959004,
+      "marketCap": 43486.95785314367,
+      "holders": 1220,
+      "timestamp": "2026-01-07T14:46:48.683Z"
+    },
+    {
+      "price": 0.00004262703366564713,
+      "change24h": 8.281623434158659,
+      "volume24h": 145473.8117622767,
+      "marketCap": 42627.03366564713,
+      "holders": 1266,
+      "timestamp": "2026-01-07T14:48:08.291Z"
+    },
+    {
+      "price": 0.00004172274233536433,
+      "change24h": -4.3833317531964076,
+      "volume24h": 213998.4142252337,
+      "marketCap": 41722.74233536433,
+      "holders": 1217,
+      "timestamp": "2026-01-07T14:49:24.520Z"
+    },
+    {
+      "price": 0.00004102914015297199,
+      "change24h": -0.35521043802375973,
+      "volume24h": 77614.4700282598,
+      "marketCap": 41029.14015297199,
+      "holders": 1221,
+      "timestamp": "2026-01-07T14:50:43.002Z"
+    },
+    {
+      "price": 0.000040178592986437636,
+      "change24h": 9.262412526544372,
+      "volume24h": 91453.66526153522,
+      "marketCap": 40178.59298643764,
+      "holders": 1209,
+      "timestamp": "2026-01-07T14:52:29.777Z"
+    },
+    {
+      "price": 0.00003935842625422556,
+      "change24h": 2.214931297283208,
+      "volume24h": 87779.75808483057,
+      "marketCap": 39358.42625422556,
+      "holders": 1289,
+      "timestamp": "2026-01-07T14:54:09.011Z"
+    },
+    {
+      "price": 0.000040095452430286304,
+      "change24h": 4.947646699591036,
+      "volume24h": 81289.63650029356,
+      "marketCap": 40095.45243028631,
+      "holders": 1237,
+      "timestamp": "2026-01-07T14:55:30.677Z"
+    },
+    {
+      "price": 0.00004096157511655077,
+      "change24h": -4.568911059809154,
+      "volume24h": 139705.3392682285,
+      "marketCap": 40961.57511655077,
+      "holders": 1255,
+      "timestamp": "2026-01-07T14:56:49.442Z"
+    },
+    {
+      "price": 0.000041674569931928225,
+      "change24h": -1.5257234882836757,
+      "volume24h": 98749.69842560156,
+      "marketCap": 41674.56993192822,
+      "holders": 1292,
+      "timestamp": "2026-01-07T14:58:10.811Z"
+    },
+    {
+      "price": 0.000042159334207053166,
+      "change24h": 9.55032568852831,
+      "volume24h": 190900.7360310752,
+      "marketCap": 42159.334207053165,
+      "holders": 1203,
+      "timestamp": "2026-01-07T14:59:27.382Z"
+    },
+    {
+      "price": 0.0000429576462142753,
+      "change24h": 2.0646451474524694,
+      "volume24h": 119426.99286941758,
+      "marketCap": 42957.6462142753,
+      "holders": 1287,
+      "timestamp": "2026-01-07T15:01:09.988Z"
+    },
+    {
+      "price": 0.000043661581329638535,
+      "change24h": -4.006775270954756,
+      "volume24h": 67881.8254684441,
+      "marketCap": 43661.58132963854,
+      "holders": 1242,
+      "timestamp": "2026-01-07T15:02:27.107Z"
+    },
+    {
+      "price": 0.000044932405346942483,
+      "change24h": -2.8049284098064344,
+      "volume24h": 101051.62506986875,
+      "marketCap": 44932.40534694248,
+      "holders": 1297,
+      "timestamp": "2026-01-07T15:04:06.115Z"
+    },
+    {
+      "price": 0.00004573327031323265,
+      "change24h": -4.8565191933628995,
+      "volume24h": 243171.76505176048,
+      "marketCap": 45733.27031323265,
+      "holders": 1297,
+      "timestamp": "2026-01-07T15:05:27.367Z"
+    },
+    {
+      "price": 0.00004650858053321378,
+      "change24h": 7.06323339800795,
+      "volume24h": 233102.69355831994,
+      "marketCap": 46508.58053321378,
+      "holders": 1282,
+      "timestamp": "2026-01-07T15:06:57.772Z"
+    },
+    {
+      "price": 0.000047411002214671626,
+      "change24h": 10.997214769788535,
+      "volume24h": 138764.0932353302,
+      "marketCap": 47411.00221467163,
+      "holders": 1227,
+      "timestamp": "2026-01-07T15:08:17.229Z"
+    },
+    {
+      "price": 0.00004839890296707444,
+      "change24h": -0.056678026170638995,
+      "volume24h": 218718.17944936757,
+      "marketCap": 48398.902967074435,
+      "holders": 1235,
+      "timestamp": "2026-01-07T15:10:12.881Z"
+    },
+    {
+      "price": 0.000049302492830309856,
+      "change24h": 6.071340971062039,
+      "volume24h": 104646.83762649362,
+      "marketCap": 49302.49283030986,
+      "holders": 1246,
+      "timestamp": "2026-01-07T15:11:33.180Z"
+    },
+    {
+      "price": 0.0000482734442146542,
+      "change24h": 13.231680153559742,
+      "volume24h": 184465.956073959,
+      "marketCap": 48273.4442146542,
+      "holders": 1278,
+      "timestamp": "2026-01-07T15:13:06.926Z"
+    },
+    {
+      "price": 0.00004736992253341192,
+      "change24h": -2.588151876966104,
+      "volume24h": 58452.8812894457,
+      "marketCap": 47369.92253341192,
+      "holders": 1246,
+      "timestamp": "2026-01-07T15:14:51.185Z"
+    },
+    {
+      "price": 0.000046339348481365026,
+      "change24h": 0.7960854543067997,
+      "volume24h": 129397.82455395312,
+      "marketCap": 46339.34848136503,
+      "holders": 1287,
+      "timestamp": "2026-01-07T15:16:08.215Z"
+    },
+    {
+      "price": 0.00004532419010746349,
+      "change24h": -5.612470341367271,
+      "volume24h": 124887.35629992504,
+      "marketCap": 45324.190107463495,
+      "holders": 1226,
+      "timestamp": "2026-01-07T15:17:28.544Z"
+    },
+    {
+      "price": 0.000045294051522887834,
+      "change24h": 3.227583076301163,
+      "volume24h": 202911.78963493006,
+      "marketCap": 45294.051522887836,
+      "holders": 1291,
+      "timestamp": "2026-01-07T15:19:44.498Z"
+    },
+    {
+      "price": 0.000046201312006800455,
+      "change24h": -0.028823957937534894,
+      "volume24h": 201232.5790080155,
+      "marketCap": 46201.31200680046,
+      "holders": 1258,
+      "timestamp": "2026-01-07T15:21:49.888Z"
+    },
+    {
+      "price": 0.000047186630021820594,
+      "change24h": -0.6905937914694615,
+      "volume24h": 172470.7242589817,
+      "marketCap": 47186.630021820594,
+      "holders": 1270,
+      "timestamp": "2026-01-07T16:03:58.797Z"
+    },
+    {
+      "price": 0.00004856886027108978,
+      "change24h": 12.980704668389134,
+      "volume24h": 240366.39764988117,
+      "marketCap": 48568.860271089776,
+      "holders": 1261,
+      "timestamp": "2026-01-07T16:05:45.397Z"
+    },
+    {
+      "price": 0.00004968114002758416,
+      "change24h": 1.1582599713633746,
+      "volume24h": 149927.22161397454,
+      "marketCap": 49681.14002758416,
+      "holders": 1290,
+      "timestamp": "2026-01-07T16:07:05.066Z"
+    },
+    {
+      "price": 0.00005095156467263731,
+      "change24h": 12.401785476873005,
+      "volume24h": 247271.63075025336,
+      "marketCap": 50951.56467263731,
+      "holders": 1257,
+      "timestamp": "2026-01-07T16:08:44.732Z"
+    },
+    {
+      "price": 0.00005210926215884149,
+      "change24h": 1.0131350415749607,
+      "volume24h": 230882.72693844113,
+      "marketCap": 52109.26215884149,
+      "holders": 1240,
+      "timestamp": "2026-01-07T16:10:03.108Z"
+    },
+    {
+      "price": 0.00005304501712636206,
+      "change24h": 2.6526074956412113,
+      "volume24h": 128574.35828138512,
+      "marketCap": 53045.01712636206,
+      "holders": 1259,
+      "timestamp": "2026-01-07T16:11:23.967Z"
+    },
+    {
+      "price": 0.00005392585449565787,
+      "change24h": -2.626797406747742,
+      "volume24h": 186916.87844519856,
+      "marketCap": 53925.85449565787,
+      "holders": 1241,
+      "timestamp": "2026-01-07T16:12:43.571Z"
+    },
+    {
+      "price": 0.0000557381905125938,
+      "change24h": -5.475923157446253,
+      "volume24h": 60301.52284136578,
+      "marketCap": 55738.1905125938,
+      "holders": 1215,
+      "timestamp": "2026-01-07T16:14:23.322Z"
+    },
+    {
+      "price": 0.00005682264116075018,
+      "change24h": 0.4819753604592514,
+      "volume24h": 211371.23061171517,
+      "marketCap": 56822.64116075018,
+      "holders": 1247,
+      "timestamp": "2026-01-07T16:15:57.906Z"
+    },
+    {
+      "price": 0.00005848108435352141,
+      "change24h": 12.860514708523123,
+      "volume24h": 224378.4354108982,
+      "marketCap": 58481.084353521415,
+      "holders": 1249,
+      "timestamp": "2026-01-07T16:17:18.715Z"
+    },
+    {
+      "price": 0.00005908984993920041,
+      "change24h": 6.133737759008055,
+      "volume24h": 178798.2295675364,
+      "marketCap": 59089.84993920041,
+      "holders": 1273,
+      "timestamp": "2026-01-07T16:19:00.327Z"
+    },
+    {
+      "price": 0.00006015768750721182,
+      "change24h": -4.420049938990668,
+      "volume24h": 72812.17752076517,
+      "marketCap": 60157.68750721182,
+      "holders": 1266,
+      "timestamp": "2026-01-07T16:20:39.626Z"
+    },
+    {
+      "price": 0.00006153823565536304,
+      "change24h": 8.34317723566991,
+      "volume24h": 77059.08150902887,
+      "marketCap": 61538.23565536304,
+      "holders": 1213,
+      "timestamp": "2026-01-07T16:22:31.032Z"
+    },
+    {
+      "price": 0.00006287946423485956,
+      "change24h": 0.9325017169666305,
+      "volume24h": 185367.440114628,
+      "marketCap": 62879.46423485956,
+      "holders": 1208,
+      "timestamp": "2026-01-07T16:23:48.679Z"
+    },
+    {
+      "price": 0.00006448687382869455,
+      "change24h": 6.4167212455827585,
+      "volume24h": 228984.87377492202,
+      "marketCap": 64486.87382869455,
+      "holders": 1286,
+      "timestamp": "2026-01-07T16:25:32.986Z"
+    },
+    {
+      "price": 0.00006581776084748161,
+      "change24h": -4.314073152535288,
+      "volume24h": 167899.04587874067,
+      "marketCap": 65817.76084748161,
+      "holders": 1279,
+      "timestamp": "2026-01-07T16:27:13.959Z"
+    },
+    {
+      "price": 0.00006690934739511358,
+      "change24h": -0.9242809950695363,
+      "volume24h": 225569.96382396156,
+      "marketCap": 66909.34739511358,
+      "holders": 1299,
+      "timestamp": "2026-01-07T16:28:32.715Z"
+    },
+    {
+      "price": 0.00006820382023171668,
+      "change24h": 2.7623923490322353,
+      "volume24h": 105712.58470273056,
+      "marketCap": 68203.82023171667,
+      "holders": 1208,
+      "timestamp": "2026-01-07T16:29:53.653Z"
+    },
+    {
+      "price": 0.00006635413515870384,
+      "change24h": -3.5659685856489745,
+      "volume24h": 84906.87200160752,
+      "marketCap": 66354.13515870385,
+      "holders": 1282,
+      "timestamp": "2026-01-07T16:31:13.901Z"
+    },
+    {
+      "price": 0.00006481762236712814,
+      "change24h": -4.8615611191961285,
+      "volume24h": 141039.14869607484,
+      "marketCap": 64817.62236712814,
+      "holders": 1236,
+      "timestamp": "2026-01-07T16:32:33.662Z"
+    },
+    {
+      "price": 0.0000648293234895555,
+      "change24h": -3.7917512640987647,
+      "volume24h": 207701.66225895853,
+      "marketCap": 64829.32348955549,
+      "holders": 1274,
+      "timestamp": "2026-01-07T16:34:22.150Z"
+    },
+    {
+      "price": 0.00006594460231731253,
+      "change24h": 9.50450079916241,
+      "volume24h": 89707.79415573325,
+      "marketCap": 65944.60231731253,
+      "holders": 1299,
+      "timestamp": "2026-01-07T16:35:42.039Z"
+    },
+    {
+      "price": 0.00006740241429277403,
+      "change24h": -0.7524746953959405,
+      "volume24h": 211898.39218923612,
+      "marketCap": 67402.41429277403,
+      "holders": 1293,
+      "timestamp": "2026-01-07T16:37:22.878Z"
+    },
+    {
+      "price": 0.00006880497246166652,
+      "change24h": 9.6872657296007,
+      "volume24h": 84697.37422775441,
+      "marketCap": 68804.97246166652,
+      "holders": 1217,
+      "timestamp": "2026-01-07T16:38:41.898Z"
+    },
+    {
+      "price": 0.00006996333361542133,
+      "change24h": 0.2043930264869409,
+      "volume24h": 215066.12129920046,
+      "marketCap": 69963.33361542133,
+      "holders": 1217,
+      "timestamp": "2026-01-07T16:40:02.551Z"
+    },
+    {
+      "price": 0.00007149741478013511,
+      "change24h": 3.3322416565894377,
+      "volume24h": 106474.75563462963,
+      "marketCap": 71497.4147801351,
+      "holders": 1246,
+      "timestamp": "2026-01-07T16:41:22.557Z"
+    },
+    {
+      "price": 0.00007335262560575161,
+      "change24h": 10.570780171725636,
+      "volume24h": 171536.52400467684,
+      "marketCap": 73352.62560575161,
+      "holders": 1211,
+      "timestamp": "2026-01-07T16:43:05.545Z"
+    },
+    {
+      "price": 0.00007197101093732683,
+      "change24h": 2.8156020863252342,
+      "volume24h": 145471.3945305497,
+      "marketCap": 71971.01093732684,
+      "holders": 1296,
+      "timestamp": "2026-01-07T16:44:24.941Z"
+    },
+    {
+      "price": 0.00007026882633284204,
+      "change24h": 0.3146344690782221,
+      "volume24h": 118745.3251841299,
+      "marketCap": 70268.82633284203,
+      "holders": 1211,
+      "timestamp": "2026-01-07T16:46:15.953Z"
+    },
+    {
+      "price": 0.00006876274282030213,
+      "change24h": -3.4506104769915016,
+      "volume24h": 243160.55028797346,
+      "marketCap": 68762.74282030213,
+      "holders": 1218,
+      "timestamp": "2026-01-07T16:47:34.587Z"
+    },
+    {
+      "price": 0.0000672744643320745,
+      "change24h": -1.784112549742528,
+      "volume24h": 70134.9501412203,
+      "marketCap": 67274.46433207451,
+      "holders": 1276,
+      "timestamp": "2026-01-07T16:49:18.001Z"
+    },
+    {
+      "price": 0.00006592645984508803,
+      "change24h": 5.993967608013203,
+      "volume24h": 191057.55110535395,
+      "marketCap": 65926.45984508803,
+      "holders": 1217,
+      "timestamp": "2026-01-07T16:50:38.767Z"
+    },
+    {
+      "price": 0.00006705599822918135,
+      "change24h": -4.634468752624682,
+      "volume24h": 106186.27419645508,
+      "marketCap": 67055.99822918135,
+      "holders": 1244,
+      "timestamp": "2026-01-07T16:52:00.269Z"
+    },
+    {
+      "price": 0.00006838240560376303,
+      "change24h": 11.79378341801848,
+      "volume24h": 88982.35406010668,
+      "marketCap": 68382.40560376304,
+      "holders": 1202,
+      "timestamp": "2026-01-07T16:53:20.484Z"
+    },
+    {
+      "price": 0.00006974952163117482,
+      "change24h": 10.441925724164367,
+      "volume24h": 60929.293488156036,
+      "marketCap": 69749.52163117482,
+      "holders": 1219,
+      "timestamp": "2026-01-07T17:24:47.678Z"
+    },
+    {
+      "price": 0.0000683991954135805,
+      "change24h": -1.7110040724765907,
+      "volume24h": 184906.1832345362,
+      "marketCap": 68399.19541358051,
+      "holders": 1256,
+      "timestamp": "2026-01-07T17:26:12.151Z"
+    },
+    {
+      "price": 0.00006701548012806344,
+      "change24h": -5.59236153669536,
+      "volume24h": 226298.54556733213,
+      "marketCap": 67015.48012806344,
+      "holders": 1212,
+      "timestamp": "2026-01-07T17:27:32.263Z"
     }
   ],
   "dailyReflections": [],
@@ -177,7 +3079,39 @@
     "longestLossStreak": 0
   },
   "currentFocus": {
-    "activeHypotheses": [],
+    "activeHypotheses": [
+      "hyp_1767761400115_v3ws8f",
+      "hyp_1767762328427_sdg3cw",
+      "hyp_1767763300842_th00ag",
+      "hyp_1767765128247_ef3q86",
+      "hyp_1767766051728_5jzeht",
+      "hyp_1767766917099_utqrlj",
+      "hyp_1767767878280_vzyipt",
+      "hyp_1767770892917_atpzqp",
+      "hyp_1767773671275_b9hanw",
+      "hyp_1767774621377_fe74s4",
+      "hyp_1767775496279_dcpx7o",
+      "hyp_1767776420174_w1ew2b",
+      "hyp_1767779542822_p0igid",
+      "hyp_1767780458729_y3xjgs",
+      "hyp_1767781420742_8j8wxg",
+      "hyp_1767782311676_raodn6",
+      "hyp_1767786068085_4ydyni",
+      "hyp_1767786945506_q0npz6",
+      "hyp_1767787779310_py0sr7",
+      "hyp_1767788666762_uifnmv",
+      "hyp_1767789537982_pipxw5",
+      "hyp_1767791655339_umvrmk",
+      "hyp_1767792595666_li203f",
+      "hyp_1767793504941_q1a94l",
+      "hyp_1767794329526_9uu8xa",
+      "hyp_1767796550014_ealib2",
+      "hyp_1767797489454_15egl5",
+      "hyp_1767798357400_rx2pyq",
+      "hyp_1767802679876_4m1foc",
+      "hyp_1767803601625_dw1ttv",
+      "hyp_1767804497542_qkk02t"
+    ],
     "watchingFor": [
       "Volume spikes",
       "Holder count changes",
