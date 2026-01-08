@@ -180,6 +180,15 @@ export const TRADING_TOOLS: ToolDefinition[] = [
       required: ['token_address', 'take_profit_percent'],
     },
   },
+  {
+    name: 'check_circuit_breaker',
+    description: 'Check if trading is paused due to consecutive losses (circuit breaker). Returns status and time until reset.',
+    input_schema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
 ];
 
 // Tool executor class
@@ -229,9 +238,36 @@ export class TradingToolExecutor {
         return this.setStopLoss(input.token_address as string, input.stop_loss_percent as number);
       case 'set_take_profit':
         return this.setTakeProfit(input.token_address as string, input.take_profit_percent as number);
+      case 'check_circuit_breaker':
+        return this.checkCircuitBreaker();
       default:
         return JSON.stringify({ error: `Unknown tool: ${toolName}` });
     }
+  }
+
+  private checkCircuitBreaker(): string {
+    if (!this.stateManager) {
+      return JSON.stringify({
+        status: 'unknown',
+        message: 'State manager not available',
+      });
+    }
+
+    const status = this.stateManager.getCircuitBreakerStatus();
+    const canTrade = this.stateManager.canTrade();
+
+    return JSON.stringify({
+      tradingAllowed: canTrade.allowed,
+      circuitBreaker: {
+        tripped: status.tripped,
+        consecutiveLosses: status.consecutiveLosses,
+        limit: status.limit,
+        resetInMinutes: status.resetIn ? Math.ceil(status.resetIn / 60000) : null,
+      },
+      message: canTrade.allowed
+        ? `Trading allowed. Current loss streak: ${status.consecutiveLosses}/${status.limit}`
+        : canTrade.reason,
+    });
   }
 
   private async checkBalance(): Promise<string> {
@@ -391,6 +427,24 @@ export class TradingToolExecutor {
     }
 
     // === HARD LIMITS (enforced in code, not just prompt) ===
+
+    // 0. Circuit breaker - check for consecutive losses
+    if (this.stateManager) {
+      const circuitBreakerCheck = this.stateManager.canTrade();
+      if (!circuitBreakerCheck.allowed) {
+        console.log(`🚨 CIRCUIT BREAKER ACTIVE: ${circuitBreakerCheck.reason}`);
+        const resetMins = circuitBreakerCheck.resetIn ? Math.ceil(circuitBreakerCheck.resetIn / 60000) : 30;
+        return JSON.stringify({
+          success: false,
+          error: circuitBreakerCheck.reason,
+          circuitBreaker: {
+            tripped: true,
+            resetInMinutes: resetMins,
+          },
+          tip: 'Trading is paused to prevent further losses. Wait for cooldown or analyze what went wrong.',
+        });
+      }
+    }
 
     // 1. Max 2 open positions at a time (for buys only)
     const MAX_POSITIONS = 2;

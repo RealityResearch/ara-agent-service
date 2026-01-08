@@ -104,9 +104,90 @@ export class AgentStateManager {
   private startTime: number;
   private onUpdate: StateUpdateCallback | null = null;
 
+  // Circuit breaker - pause trading after consecutive losses
+  private circuitBreakerTripped: boolean = false;
+  private circuitBreakerTrippedAt: number | null = null;
+  private readonly CONSECUTIVE_LOSSES_LIMIT = 3;
+  private readonly CIRCUIT_BREAKER_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
+
   constructor() {
     this.startTime = Date.now();
     this.state = this.getInitialState();
+  }
+
+  // Check if circuit breaker allows trading
+  canTrade(): { allowed: boolean; reason?: string; resetIn?: number } {
+    // Check if circuit breaker has cooled down
+    if (this.circuitBreakerTripped && this.circuitBreakerTrippedAt) {
+      const elapsed = Date.now() - this.circuitBreakerTrippedAt;
+      if (elapsed >= this.CIRCUIT_BREAKER_COOLDOWN_MS) {
+        // Reset circuit breaker after cooldown
+        this.circuitBreakerTripped = false;
+        this.circuitBreakerTrippedAt = null;
+        console.log('🔄 Circuit breaker reset after cooldown period');
+      } else {
+        const remainingMs = this.CIRCUIT_BREAKER_COOLDOWN_MS - elapsed;
+        const remainingMins = Math.ceil(remainingMs / 60000);
+        return {
+          allowed: false,
+          reason: `CIRCUIT_BREAKER: Trading paused after ${this.CONSECUTIVE_LOSSES_LIMIT} consecutive losses. Wait ${remainingMins} minutes.`,
+          resetIn: remainingMs,
+        };
+      }
+    }
+
+    // Check current loss streak
+    if (
+      this.state.performance.streakType === 'loss' &&
+      this.state.performance.currentStreak >= this.CONSECUTIVE_LOSSES_LIMIT
+    ) {
+      this.tripCircuitBreaker();
+      return {
+        allowed: false,
+        reason: `CIRCUIT_BREAKER: Trading paused after ${this.CONSECUTIVE_LOSSES_LIMIT} consecutive losses. Wait 30 minutes.`,
+        resetIn: this.CIRCUIT_BREAKER_COOLDOWN_MS,
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  // Trip the circuit breaker
+  private tripCircuitBreaker(): void {
+    if (!this.circuitBreakerTripped) {
+      this.circuitBreakerTripped = true;
+      this.circuitBreakerTrippedAt = Date.now();
+      console.log(`🚨 CIRCUIT BREAKER TRIPPED: ${this.CONSECUTIVE_LOSSES_LIMIT} consecutive losses detected. Trading paused for 30 minutes.`);
+    }
+  }
+
+  // Manually reset circuit breaker (for admin use)
+  resetCircuitBreaker(): void {
+    this.circuitBreakerTripped = false;
+    this.circuitBreakerTrippedAt = null;
+    console.log('🔄 Circuit breaker manually reset');
+  }
+
+  // Get circuit breaker status
+  getCircuitBreakerStatus(): {
+    tripped: boolean;
+    trippedAt: number | null;
+    resetIn: number | null;
+    consecutiveLosses: number;
+    limit: number;
+  } {
+    let resetIn = null;
+    if (this.circuitBreakerTripped && this.circuitBreakerTrippedAt) {
+      const elapsed = Date.now() - this.circuitBreakerTrippedAt;
+      resetIn = Math.max(0, this.CIRCUIT_BREAKER_COOLDOWN_MS - elapsed);
+    }
+    return {
+      tripped: this.circuitBreakerTripped,
+      trippedAt: this.circuitBreakerTrippedAt,
+      resetIn,
+      consecutiveLosses: this.state.performance.streakType === 'loss' ? this.state.performance.currentStreak : 0,
+      limit: this.CONSECUTIVE_LOSSES_LIMIT,
+    };
   }
 
   private getInitialState(): AgentState {
