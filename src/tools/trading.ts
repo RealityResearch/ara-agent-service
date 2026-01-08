@@ -390,6 +390,42 @@ export class TradingToolExecutor {
       });
     }
 
+    // === HARD LIMITS (enforced in code, not just prompt) ===
+
+    // 1. Max 2 open positions at a time (for buys only)
+    const MAX_POSITIONS = 2;
+    if (direction === 'buy') {
+      const currentPositions = this.positionManager.getAllPositions();
+      if (currentPositions.length >= MAX_POSITIONS) {
+        console.log(`⛔ BLOCKED: Already have ${currentPositions.length} open positions (max ${MAX_POSITIONS})`);
+        return JSON.stringify({
+          success: false,
+          error: `MAX_POSITIONS_REACHED: You have ${currentPositions.length} open positions. Close one before opening another. Max allowed: ${MAX_POSITIONS}`,
+          currentPositions: currentPositions.map(p => p.tokenSymbol),
+          tip: 'Check your positions with get_positions and consider closing one first.',
+        });
+      }
+    }
+
+    // 2. Max 15% of portfolio per trade (for buys only)
+    const MAX_PORTFOLIO_PERCENT = 15;
+    if (direction === 'buy') {
+      const solBalance = await this.wallet.getSolBalance();
+      const maxTradeAmount = solBalance * (MAX_PORTFOLIO_PERCENT / 100);
+
+      if (amount > maxTradeAmount) {
+        console.log(`⛔ BLOCKED: Trade ${amount} SOL exceeds ${MAX_PORTFOLIO_PERCENT}% of portfolio (${solBalance} SOL)`);
+        return JSON.stringify({
+          success: false,
+          error: `EXCEEDS_MAX_PORTFOLIO_PERCENT: Trade of ${amount} SOL exceeds ${MAX_PORTFOLIO_PERCENT}% of your portfolio. Max allowed: ${maxTradeAmount.toFixed(4)} SOL`,
+          portfolioBalance: solBalance,
+          maxAllowed: maxTradeAmount,
+          requestedAmount: amount,
+          tip: `Reduce trade size to ${maxTradeAmount.toFixed(4)} SOL or less.`,
+        });
+      }
+    }
+
     let result: TradeResult;
 
     if (direction === 'buy') {
