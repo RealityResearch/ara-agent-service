@@ -1,13 +1,14 @@
 import 'dotenv/config';
+import { config } from './config.js';
 import { TradingAgent } from './agent.js';
 import { ThoughtBroadcaster } from './websocket.js';
 import { AgentStateManager } from './state.js';
 import { discoverTokens, DiscoveredToken } from './tools/discovery.js';
 
-// Railway uses PORT, fallback to WS_PORT or 8080
-const WS_PORT = parseInt(process.env.PORT || process.env.WS_PORT || '8080');
-const ANALYSIS_INTERVAL = parseInt(process.env.ANALYSIS_INTERVAL || '30000');
-const AGENT_ENABLED = process.env.AGENT_ENABLED !== 'false'; // Set to 'false' to pause
+// Use validated config
+const WS_PORT = config.PORT;
+const ANALYSIS_INTERVAL = config.ANALYSIS_INTERVAL;
+const AGENT_ENABLED = config.AGENT_ENABLED;
 
 async function main() {
   console.log(`
@@ -97,12 +98,12 @@ async function main() {
 
   // Announce style changes
   broadcaster.getVotingManager().setStyleChangeCallback((style) => {
-    const config = broadcaster.getVotingManager().getStatus().styleConfig;
-    agent.addQuestion(`The community has spoken! Trading style changed to ${config.emoji} ${config.name}`, 'System');
+    const styleConfig = broadcaster.getVotingManager().getStatus().styleConfig;
+    agent.addQuestion(`The community has spoken! Trading style changed to ${styleConfig.emoji} ${styleConfig.name}`, 'System');
   });
 
   // Discovery Scanner - runs every 2 minutes
-  const DISCOVERY_INTERVAL = parseInt(process.env.DISCOVERY_INTERVAL || '120000');
+  const DISCOVERY_INTERVAL = config.DISCOVERY_INTERVAL;
   let lastDiscoveryTokens: DiscoveredToken[] = [];
 
   async function runDiscoveryScan() {
