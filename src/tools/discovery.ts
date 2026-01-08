@@ -38,10 +38,10 @@ export interface DiscoveryFilters {
 }
 
 const DEFAULT_FILTERS: DiscoveryFilters = {
-  minLiquidity: 10000, // $10k minimum liquidity (tradeable)
-  minVolume24h: 20000, // $20k minimum 24h volume (active)
-  maxAge: 168, // 7 days old max (catch newer plays)
-  minBuys24h: 50, // at least 50 buys
+  minLiquidity: 20000, // $20k minimum liquidity (degen-friendly but not suicide)
+  minVolume24h: 50000, // $50k minimum 24h volume (real activity)
+  maxAge: 72, // 3 days old max (not too fresh, not stale)
+  minBuys24h: 100, // at least 100 buys (some interest)
   chainId: 'solana',
 };
 
@@ -115,51 +115,82 @@ async function getTokenPairs(chainId: string, tokenAddress: string): Promise<any
 
 /**
  * Calculate a score for a token based on various metrics
+ * SMART DEGEN scoring - rewards good signals, heavily penalizes red flags
  */
 function calculateScore(token: Partial<DiscoveredToken>): number {
   let score = 50; // Base score
 
   // Volume to liquidity ratio (higher is better, shows active trading)
+  // But TOO high is suspicious (wash trading)
   const volLiqRatio = (token.volume24h || 0) / Math.max(token.liquidity || 1, 1);
-  if (volLiqRatio > 2) score += 15;
-  else if (volLiqRatio > 1) score += 10;
+  if (volLiqRatio > 10) score -= 15; // Suspicious wash trading
+  else if (volLiqRatio > 3) score += 15;
+  else if (volLiqRatio > 1.5) score += 10;
   else if (volLiqRatio > 0.5) score += 5;
+  else score -= 5; // Dead volume
 
   // Buy/sell ratio (more buys = bullish)
   const buys = token.txns24h?.buys || 0;
   const sells = token.txns24h?.sells || 0;
-  const buyRatio = buys / Math.max(buys + sells, 1);
-  if (buyRatio > 0.6) score += 10;
-  else if (buyRatio > 0.5) score += 5;
-  else if (buyRatio < 0.4) score -= 10;
+  const totalTxns = buys + sells;
+  const buyRatio = buys / Math.max(totalTxns, 1);
 
-  // Price action
+  if (buyRatio > 0.65) score += 15; // Strong buy pressure
+  else if (buyRatio > 0.55) score += 10;
+  else if (buyRatio > 0.45) score += 0; // Neutral
+  else if (buyRatio < 0.35) score -= 20; // DUMPING - big penalty
+  else score -= 10; // Weak
+
+  // Price action - be careful of pumps
   const change = token.priceChange24h || 0;
-  if (change > 50) score += 10;
-  else if (change > 20) score += 5;
-  else if (change < -30) score -= 10;
+  if (change > 200) score -= 10; // Already pumped too much, late entry
+  else if (change > 50) score += 5; // Momentum but careful
+  else if (change > 10) score += 10; // Healthy growth
+  else if (change > -10) score += 5; // Stable
+  else if (change < -50) score -= 25; // DUMPING HARD
+  else if (change < -30) score -= 15; // Significant drop
 
-  // Liquidity bonus
-  if ((token.liquidity || 0) > 50000) score += 10;
-  else if ((token.liquidity || 0) > 20000) score += 5;
+  // Liquidity bonus - higher = safer exits
+  if ((token.liquidity || 0) > 500000) score += 20; // Very safe
+  else if ((token.liquidity || 0) > 200000) score += 15;
+  else if ((token.liquidity || 0) > 100000) score += 10;
+  else if ((token.liquidity || 0) > 50000) score += 5;
+  else if ((token.liquidity || 0) > 20000) score += 0; // Acceptable for degen
+  else score -= 10; // Risky but tradeable
 
   // Volume bonus
-  if ((token.volume24h || 0) > 100000) score += 10;
-  else if ((token.volume24h || 0) > 50000) score += 5;
+  if ((token.volume24h || 0) > 500000) score += 15;
+  else if ((token.volume24h || 0) > 200000) score += 10;
+  else if ((token.volume24h || 0) > 100000) score += 5;
 
-  // Boost bonus
-  if ((token.boostAmount || 0) > 100) score += 5;
+  // Market cap sanity check
+  const mcap = token.marketCap || 0;
+  if (mcap > 0 && mcap < 50000) score -= 20; // Micro cap = high rug risk
+  else if (mcap > 10000000) score += 10; // Established
 
-  // Has socials bonus
-  if (token.socials?.twitter) score += 5;
-  if (token.socials?.telegram) score += 3;
-  if (token.socials?.website) score += 2;
+  // Transaction count - needs real activity
+  if (totalTxns > 1000) score += 10;
+  else if (totalTxns > 500) score += 5;
+  else if (totalTxns < 100) score -= 15; // Ghost town
+
+  // Boost bonus (smaller, paid boosts can be scams)
+  if ((token.boostAmount || 0) > 500) score += 3;
+  else if ((token.boostAmount || 0) > 100) score += 2;
+
+  // SOCIALS ARE CRITICAL - no socials = likely rug
+  const hasSocials = token.socials?.twitter || token.socials?.telegram || token.socials?.website;
+  if (token.socials?.twitter && token.socials?.website) score += 15; // Both = legit effort
+  else if (token.socials?.twitter) score += 10;
+  else if (token.socials?.telegram) score += 5;
+  else if (token.socials?.website) score += 5;
+  else score -= 25; // NO SOCIALS = BIG RED FLAG
 
   return Math.min(100, Math.max(0, score));
 }
 
 /**
  * Generate warning flags for a token
+ * SMART DEGEN flags - comprehensive rug detection
  */
 function generateFlags(token: Partial<DiscoveredToken>): string[] {
   const flags: string[] = [];
@@ -169,32 +200,76 @@ function generateFlags(token: Partial<DiscoveredToken>): string[] {
     flags.push('PUMP_FUN_TOKEN');
   }
 
-  // Low liquidity warning
-  if ((token.liquidity || 0) < 10000) {
+  // Liquidity warnings - tiered
+  const liq = token.liquidity || 0;
+  if (liq < 10000) {
+    flags.push('DANGER_LOW_LIQUIDITY'); // Can't exit safely
+  } else if (liq < 20000) {
     flags.push('LOW_LIQUIDITY');
   }
 
-  // High sell pressure
+  // High sell pressure - someone dumping
   const buys = token.txns24h?.buys || 0;
   const sells = token.txns24h?.sells || 0;
-  if (sells > buys * 1.5) {
-    flags.push('HIGH_SELL_PRESSURE');
+  const totalTxns = buys + sells;
+  if (sells > buys * 2) {
+    flags.push('HEAVY_DUMPING'); // 2:1 sell ratio = bad
+  } else if (sells > buys * 1.3) {
+    flags.push('SELL_PRESSURE');
   }
 
-  // Very new (< 6 hours)
+  // Age warnings
   const ageHours = (Date.now() - (token.pairCreatedAt || Date.now())) / (1000 * 60 * 60);
-  if (ageHours < 6) {
+  if (ageHours < 1) {
+    flags.push('JUST_LAUNCHED'); // < 1 hour = extreme risk
+  } else if (ageHours < 6) {
     flags.push('VERY_NEW');
+  } else if (ageHours < 24) {
+    flags.push('NEW_TOKEN');
   }
 
-  // Large price drop
-  if ((token.priceChange24h || 0) < -40) {
+  // Price action warnings
+  const change = token.priceChange24h || 0;
+  if (change < -50) {
+    flags.push('CRASHING'); // Down 50%+ = likely dead
+  } else if (change < -30) {
     flags.push('DUMPING');
+  } else if (change > 300) {
+    flags.push('ALREADY_PUMPED'); // Late entry warning
+  } else if (change > 100) {
+    flags.push('HOT'); // Momentum but risky
   }
 
-  // No socials
-  if (!token.socials?.twitter && !token.socials?.telegram) {
-    flags.push('NO_SOCIALS');
+  // Volume anomalies
+  const volLiqRatio = (token.volume24h || 0) / Math.max(liq, 1);
+  if (volLiqRatio > 15) {
+    flags.push('SUSPICIOUS_VOLUME'); // Likely wash trading
+  }
+
+  // Low activity
+  if (totalTxns < 50) {
+    flags.push('GHOST_TOWN'); // No real interest
+  } else if (totalTxns < 100) {
+    flags.push('LOW_ACTIVITY');
+  }
+
+  // Market cap warnings
+  const mcap = token.marketCap || 0;
+  if (mcap > 0 && mcap < 25000) {
+    flags.push('MICRO_CAP'); // Extreme rug risk
+  } else if (mcap > 0 && mcap < 100000) {
+    flags.push('SMALL_CAP');
+  }
+
+  // CRITICAL: No socials = likely rug
+  const hasTwitter = !!token.socials?.twitter;
+  const hasTelegram = !!token.socials?.telegram;
+  const hasWebsite = !!token.socials?.website;
+
+  if (!hasTwitter && !hasTelegram && !hasWebsite) {
+    flags.push('NO_SOCIALS_RUG_RISK'); // Major red flag
+  } else if (!hasTwitter && !hasWebsite) {
+    flags.push('WEAK_SOCIALS');
   }
 
   return flags;
