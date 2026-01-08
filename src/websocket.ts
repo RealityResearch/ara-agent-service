@@ -122,7 +122,8 @@ export class ThoughtBroadcaster {
           // Handle chat messages
           if (message.type === 'chat_message' && message.message) {
             const chatMsg: ChatMessage = {
-              id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              // Use client-provided ID if available (for deduplication)
+              id: message.id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
               type: 'user',
               message: `@${message.anonId || 'anon'}: ${message.message.slice(0, 280)}`,
               timestamp: message.timestamp || Date.now(),
@@ -206,6 +207,7 @@ export class ThoughtBroadcaster {
   private latestMarketData: {
     walletSol: number;
     walletValue: number;
+    solPrice: number;
     positions?: Array<{
       tokenAddress: string;
       tokenSymbol: string;
@@ -224,6 +226,7 @@ export class ThoughtBroadcaster {
   updateMarketData(
     walletSol: number,
     walletValue: number,
+    solPrice: number,
     positions?: Array<{
       tokenAddress: string;
       tokenSymbol: string;
@@ -239,6 +242,7 @@ export class ThoughtBroadcaster {
     this.latestMarketData = {
       walletSol,
       walletValue,
+      solPrice,
       positions,
       totalPositionValue,
       timestamp: Date.now()
@@ -255,6 +259,7 @@ export class ThoughtBroadcaster {
         marketData: {
           walletSol: this.latestMarketData.walletSol,
           walletValue: this.latestMarketData.walletValue,
+          solPrice: this.latestMarketData.solPrice,
           positions: this.latestMarketData.positions,
           totalPositionValue: this.latestMarketData.totalPositionValue,
         }
@@ -266,6 +271,7 @@ export class ThoughtBroadcaster {
   broadcastMarketUpdate(
     walletSol: number,
     walletValue: number,
+    solPrice: number,
     positions?: Array<{
       tokenAddress: string;
       tokenSymbol: string;
@@ -278,7 +284,7 @@ export class ThoughtBroadcaster {
     }>,
     totalPositionValue?: number
   ): void {
-    this.updateMarketData(walletSol, walletValue, positions, totalPositionValue);
+    this.updateMarketData(walletSol, walletValue, solPrice, positions, totalPositionValue);
 
     const message = JSON.stringify({
       type: 'market_update',
@@ -287,6 +293,7 @@ export class ThoughtBroadcaster {
       marketData: {
         walletSol,
         walletValue,
+        solPrice,
         positions,
         totalPositionValue,
       }

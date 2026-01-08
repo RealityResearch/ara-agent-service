@@ -334,23 +334,50 @@ export class TradingAgent {
     // Calculate USD value (SOL + ARA) with real SOL price
     const solPriceUsd = await getSolPrice();
 
-    // Get current positions with updated values
+    // Get current positions and fetch fresh prices for each
     const rawPositions = this.toolExecutor.getPositionManager().getAllPositions();
-    const positions: PositionData[] = rawPositions.map(pos => {
-      const currentValue = pos.currentPrice ? pos.amount * pos.currentPrice : undefined;
-      return {
+    const positions: PositionData[] = [];
+
+    for (const pos of rawPositions) {
+      let currentPrice = pos.currentPrice;
+      let currentValue: number | undefined;
+      let unrealizedPnlPercent = pos.unrealizedPnlPercent;
+
+      // Fetch current price from DexScreener
+      try {
+        const resp = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${pos.tokenAddress}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.pairs && data.pairs.length > 0) {
+            currentPrice = parseFloat(data.pairs[0].priceUsd || '0');
+            // Update position in manager
+            this.toolExecutor.getPositionManager().updatePrice(pos.tokenAddress, currentPrice);
+            unrealizedPnlPercent = ((currentPrice - pos.entryPrice) / pos.entryPrice) * 100;
+          }
+        }
+      } catch (e) {
+        // Use cached price if fetch fails
+        console.log(`Failed to fetch price for ${pos.tokenSymbol}, using cached`);
+      }
+
+      // Calculate current value in USD
+      if (currentPrice && currentPrice > 0) {
+        currentValue = pos.amount * currentPrice;
+      }
+
+      positions.push({
         tokenAddress: pos.tokenAddress,
         tokenSymbol: pos.tokenSymbol,
         entryPrice: pos.entryPrice,
-        currentPrice: pos.currentPrice,
+        currentPrice,
         amount: pos.amount,
         costBasis: pos.costBasis,
         currentValue,
-        unrealizedPnlPercent: pos.unrealizedPnlPercent,
+        unrealizedPnlPercent,
         stopLoss: pos.stopLoss,
         takeProfit: pos.takeProfit,
-      };
-    });
+      });
+    }
 
     // Calculate total position value in USD
     const totalPositionValue = positions.reduce((sum, pos) => sum + (pos.currentValue || 0), 0);
