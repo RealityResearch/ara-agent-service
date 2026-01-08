@@ -1,6 +1,16 @@
 // Token Registry - Known tradable tokens and position tracking
 // These are established Solana tokens that work reliably with Jupiter
 
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get directory for data persistence
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const DATA_DIR = join(__dirname, '..', '..', 'data');
+const POSITIONS_FILE = join(DATA_DIR, 'positions.json');
+
 export interface KnownToken {
   address: string;
   symbol: string;
@@ -257,6 +267,39 @@ export class PositionManager {
   constructor(stopLoss: number = 15, takeProfit: number = 50) {
     this.stopLossPercent = stopLoss;
     this.takeProfitPercent = takeProfit;
+    this.loadFromDisk();
+  }
+
+  // Load positions from disk
+  private loadFromDisk(): void {
+    try {
+      if (existsSync(POSITIONS_FILE)) {
+        const data = readFileSync(POSITIONS_FILE, 'utf-8');
+        const parsed = JSON.parse(data);
+        if (parsed.positions) {
+          for (const [addr, pos] of parsed.positions) {
+            this.positions.set(addr, pos);
+          }
+          console.log(`📂 Loaded ${this.positions.size} positions from disk`);
+        }
+        if (parsed.stopLossPercent) this.stopLossPercent = parsed.stopLossPercent;
+        if (parsed.takeProfitPercent) this.takeProfitPercent = parsed.takeProfitPercent;
+      }
+    } catch (error) {
+      console.error('Failed to load positions from disk:', error);
+    }
+  }
+
+  // Save positions to disk
+  private saveToDisk(): void {
+    try {
+      if (!existsSync(DATA_DIR)) {
+        mkdirSync(DATA_DIR, { recursive: true });
+      }
+      writeFileSync(POSITIONS_FILE, JSON.stringify(this.toJSON(), null, 2));
+    } catch (error) {
+      console.error('Failed to save positions to disk:', error);
+    }
   }
 
   // Open a new position
@@ -283,6 +326,7 @@ export class PositionManager {
     console.log(`   Stop Loss: $${position.stopLoss?.toFixed(8)} (-${this.stopLossPercent}%)`);
     console.log(`   Take Profit: $${position.takeProfit?.toFixed(8)} (+${this.takeProfitPercent}%)`);
 
+    this.saveToDisk();
     return position;
   }
 
@@ -306,6 +350,7 @@ export class PositionManager {
     console.log(`   Hold time: ${holdTime}`);
 
     this.positions.delete(tokenAddress);
+    this.saveToDisk();
 
     return { pnlSol, pnlPercent, holdTime };
   }
