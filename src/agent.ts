@@ -219,6 +219,7 @@ export interface MarketData {
   walletSol: number;
   walletAra: number;
   walletValue: number;
+  solPrice: number;  // Real-time SOL price in USD
   positions?: PositionData[];
   totalPositionValue?: number;
 }
@@ -367,6 +368,7 @@ export class TradingAgent {
       walletSol,
       walletAra,
       walletValue,
+      solPrice: solPriceUsd,
       positions,
       totalPositionValue,
     };
