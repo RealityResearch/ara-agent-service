@@ -57,8 +57,22 @@ async function main() {
 
       // Also cache market data for portfolio chart (new clients get data immediately)
       if (thought.type === 'market_update' && thought.marketData) {
-        const { walletSol, walletValue } = thought.marketData as { walletSol: number; walletValue: number };
-        broadcaster.updateMarketData(walletSol, walletValue);
+        const { walletSol, walletValue, positions, totalPositionValue } = thought.marketData as {
+          walletSol: number;
+          walletValue: number;
+          positions?: Array<{
+            tokenAddress: string;
+            tokenSymbol: string;
+            entryPrice: number;
+            currentPrice?: number;
+            amount: number;
+            costBasis: number;
+            currentValue?: number;
+            unrealizedPnlPercent?: number;
+          }>;
+          totalPositionValue?: number;
+        };
+        broadcaster.updateMarketData(walletSol, walletValue, positions, totalPositionValue);
       }
     },
     stateManager

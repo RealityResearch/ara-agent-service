@@ -196,6 +196,19 @@ const QUESTION_PROMPT = `You are the Branch Manager AI at Claude Investments. A 
 
 Be brief (2-3 sentences). Reference current market data. Sign off as "- Branch Manager"`;
 
+export interface PositionData {
+  tokenAddress: string;
+  tokenSymbol: string;
+  entryPrice: number;
+  currentPrice?: number;
+  amount: number;
+  costBasis: number;
+  currentValue?: number;
+  unrealizedPnlPercent?: number;
+  stopLoss?: number;
+  takeProfit?: number;
+}
+
 export interface MarketData {
   price: number;
   priceFormatted: string;
@@ -206,6 +219,8 @@ export interface MarketData {
   walletSol: number;
   walletAra: number;
   walletValue: number;
+  positions?: PositionData[];
+  totalPositionValue?: number;
 }
 
 export interface ThoughtMessage {
@@ -317,7 +332,30 @@ export class TradingAgent {
 
     // Calculate USD value (SOL + ARA) with real SOL price
     const solPriceUsd = await getSolPrice();
-    const walletValue = (walletSol * solPriceUsd) + (walletAra * token.price);
+
+    // Get current positions with updated values
+    const rawPositions = this.toolExecutor.getPositionManager().getAllPositions();
+    const positions: PositionData[] = rawPositions.map(pos => {
+      const currentValue = pos.currentPrice ? pos.amount * pos.currentPrice : undefined;
+      return {
+        tokenAddress: pos.tokenAddress,
+        tokenSymbol: pos.tokenSymbol,
+        entryPrice: pos.entryPrice,
+        currentPrice: pos.currentPrice,
+        amount: pos.amount,
+        costBasis: pos.costBasis,
+        currentValue,
+        unrealizedPnlPercent: pos.unrealizedPnlPercent,
+        stopLoss: pos.stopLoss,
+        takeProfit: pos.takeProfit,
+      };
+    });
+
+    // Calculate total position value in USD
+    const totalPositionValue = positions.reduce((sum, pos) => sum + (pos.currentValue || 0), 0);
+
+    // Total wallet value = SOL value + position values
+    const walletValue = (walletSol * solPriceUsd) + (walletAra * token.price) + totalPositionValue;
 
     return {
       price: token.price,
@@ -328,7 +366,9 @@ export class TradingAgent {
       holders: token.holders,
       walletSol,
       walletAra,
-      walletValue
+      walletValue,
+      positions,
+      totalPositionValue,
     };
   }
 
@@ -759,6 +799,26 @@ Also, if you have a new hypothesis to test, state it clearly as: "HYPOTHESIS: [y
   // Get memory for external access (API, debugging)
   getMemory(): MemoryManager | null {
     return this.memory;
+  }
+
+  // Get current positions for external broadcast
+  getPositions(): Array<{
+    tokenAddress: string;
+    tokenSymbol: string;
+    entryPrice: number;
+    currentPrice?: number;
+    amount: number;
+    costBasis: number;
+    unrealizedPnlPercent?: number;
+    stopLoss?: number;
+    takeProfit?: number;
+  }> {
+    return this.toolExecutor.getPositionManager().getAllPositions();
+  }
+
+  // Get tool executor for position manager access
+  getToolExecutor(): TradingToolExecutor {
+    return this.toolExecutor;
   }
 
   async start(): Promise<void> {

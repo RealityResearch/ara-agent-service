@@ -202,14 +202,45 @@ export class ThoughtBroadcaster {
     }
   }
 
-  // Store latest market data for new client connections
-  private latestMarketData: { walletSol: number; walletValue: number; timestamp: number } | null = null;
+  // Position data type for type safety
+  private latestMarketData: {
+    walletSol: number;
+    walletValue: number;
+    positions?: Array<{
+      tokenAddress: string;
+      tokenSymbol: string;
+      entryPrice: number;
+      currentPrice?: number;
+      amount: number;
+      costBasis: number;
+      currentValue?: number;
+      unrealizedPnlPercent?: number;
+    }>;
+    totalPositionValue?: number;
+    timestamp: number;
+  } | null = null;
 
-  // Called by agent to update cached market data
-  updateMarketData(walletSol: number, walletValue: number): void {
+  // Called by agent to update cached market data (with positions)
+  updateMarketData(
+    walletSol: number,
+    walletValue: number,
+    positions?: Array<{
+      tokenAddress: string;
+      tokenSymbol: string;
+      entryPrice: number;
+      currentPrice?: number;
+      amount: number;
+      costBasis: number;
+      currentValue?: number;
+      unrealizedPnlPercent?: number;
+    }>,
+    totalPositionValue?: number
+  ): void {
     this.latestMarketData = {
       walletSol,
       walletValue,
+      positions,
+      totalPositionValue,
       timestamp: Date.now()
     };
   }
@@ -223,15 +254,31 @@ export class ThoughtBroadcaster {
         timestamp: this.latestMarketData.timestamp,
         marketData: {
           walletSol: this.latestMarketData.walletSol,
-          walletValue: this.latestMarketData.walletValue
+          walletValue: this.latestMarketData.walletValue,
+          positions: this.latestMarketData.positions,
+          totalPositionValue: this.latestMarketData.totalPositionValue,
         }
       }));
     }
   }
 
   // Broadcast market update to all clients (for portfolio chart)
-  broadcastMarketUpdate(walletSol: number, walletValue: number): void {
-    this.updateMarketData(walletSol, walletValue);
+  broadcastMarketUpdate(
+    walletSol: number,
+    walletValue: number,
+    positions?: Array<{
+      tokenAddress: string;
+      tokenSymbol: string;
+      entryPrice: number;
+      currentPrice?: number;
+      amount: number;
+      costBasis: number;
+      currentValue?: number;
+      unrealizedPnlPercent?: number;
+    }>,
+    totalPositionValue?: number
+  ): void {
+    this.updateMarketData(walletSol, walletValue, positions, totalPositionValue);
 
     const message = JSON.stringify({
       type: 'market_update',
@@ -239,7 +286,9 @@ export class ThoughtBroadcaster {
       timestamp: Date.now(),
       marketData: {
         walletSol,
-        walletValue
+        walletValue,
+        positions,
+        totalPositionValue,
       }
     });
 
