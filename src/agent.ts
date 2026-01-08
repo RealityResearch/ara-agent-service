@@ -7,6 +7,7 @@ import { RESEARCH_TOOLS, ResearchToolExecutor, getResearchTools } from './tools/
 import { DISCOVERY_TOOLS, executeDiscoveryTool } from './tools/discovery.js';
 import { TECHNICAL_TOOLS, executeTechnicalTool } from './tools/technical.js';
 import { MemoryManager } from './memory/index.js';
+import type { ChatMessage } from './websocket.js';
 
 const MODEL = 'claude-sonnet-4-20250514';
 
@@ -247,6 +248,8 @@ export class TradingAgent {
   private lastMarketData: MarketData | null = null;
   private analysisCycleCount: number = 0;
   private getStylePrompt: (() => string) | null = null;
+  private getChatMessages: (() => ChatMessage[]) | null = null;
+  private sendChatResponse: ((response: string, replyToId?: string) => void) | null = null;
 
   constructor(onThought: ThoughtCallback, stateManager?: AgentStateManager) {
     this.client = new Anthropic();
@@ -458,6 +461,10 @@ Use your tools to discover, analyze, and trade. Give your take in 3-5 short para
         const question = this.questionQueue.shift()!;
         await this.answerQuestion(question);
       }
+
+      // Respond to community chat messages (if any pending)
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await this.respondToChat();
 
     } catch (error) {
       console.error('Error analyzing market:', error);
@@ -804,5 +811,71 @@ Also, if you have a new hypothesis to test, state it clearly as: "HYPOTHESIS: [y
       return this.getStylePrompt();
     }
     return '';
+  }
+
+  setChatHandlers(
+    getMessages: () => ChatMessage[],
+    sendResponse: (response: string, replyToId?: string) => void
+  ): void {
+    this.getChatMessages = getMessages;
+    this.sendChatResponse = sendResponse;
+  }
+
+  private async respondToChat(): Promise<void> {
+    if (!this.getChatMessages || !this.sendChatResponse) return;
+
+    const messages = this.getChatMessages();
+    if (messages.length === 0) return;
+
+    console.log(`💬 Responding to ${messages.length} chat message(s)`);
+
+    // Format chat messages for Claude
+    const chatContext = messages.map(m => m.message).join('\n');
+
+    const chatPrompt = `You are the Branch Manager AI. Community members are chatting with you.
+Pick the most interesting 1-3 messages to respond to. Keep responses brief (1-2 sentences each).
+Be helpful but also entertaining. Reference current market conditions when relevant.
+
+CURRENT MARKET:
+- Portfolio: ${this.lastMarketData?.walletSol.toFixed(4) || '?'} SOL
+- Value: $${this.lastMarketData?.walletValue.toFixed(2) || '?'}
+
+MESSAGES FROM COMMUNITY:
+${chatContext}
+
+Respond naturally to the messages you find most interesting. Format: just write your responses, one per line. Keep it casual and fun.`;
+
+    try {
+      const response = await this.client.messages.create({
+        model: MODEL,
+        max_tokens: 300,
+        system: 'You are a witty AI trading bot chatting with the community. Be brief, helpful, and entertaining. Use trading slang occasionally.',
+        messages: [{ role: 'user', content: chatPrompt }]
+      });
+
+      const chatResponse = response.content[0].type === 'text' ? response.content[0].text : '';
+
+      if (chatResponse.trim()) {
+        // Split into separate responses if there are multiple
+        const responses = chatResponse.split('\n').filter(r => r.trim().length > 0);
+
+        for (const resp of responses.slice(0, 3)) { // Max 3 responses
+          this.sendChatResponse(resp.trim());
+
+          // Broadcast as thought too so it shows in terminal
+          this.onThought({
+            type: 'analysis',
+            content: `💬 Chat: ${resp.trim()}`,
+            timestamp: Date.now(),
+            model: MODEL,
+            marketData: this.lastMarketData || undefined
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+    } catch (error) {
+      console.error('Error responding to chat:', error);
+    }
   }
 }

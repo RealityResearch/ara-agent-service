@@ -7,6 +7,15 @@ import { VotingManager, TradingStyle, TRADING_STYLES } from './voting.js';
 export type QuestionHandler = (question: string, from: string) => string;
 export type VoteHandler = (visitorId: string, style: TradingStyle) => { success: boolean; message: string };
 
+export interface ChatMessage {
+  id: string;
+  type: 'user' | 'bot';
+  message: string;
+  timestamp: number;
+  anonId?: string;
+  replyTo?: string;
+}
+
 export class ThoughtBroadcaster {
   private wss: WebSocketServer;
   private httpServer: ReturnType<typeof createServer>;
@@ -14,6 +23,11 @@ export class ThoughtBroadcaster {
   private onQuestion: QuestionHandler | null = null;
   private queueLength: () => number = () => 0;
   private votingManager: VotingManager;
+
+  // Chat system
+  private chatHistory: ChatMessage[] = [];
+  private pendingChatMessages: ChatMessage[] = [];
+  private maxChatHistory = 100;
 
   constructor(port: number = 8080) {
     // Initialize voting system
@@ -29,6 +43,7 @@ export class ThoughtBroadcaster {
           service: 'ara-agent-service',
           clients: this.clients.size,
           voting: voteStatus,
+          pendingChat: this.pendingChatMessages.length,
           timestamp: Date.now()
         }));
       } else {
@@ -48,22 +63,32 @@ export class ThoughtBroadcaster {
       const voteStatus = this.votingManager.getStatus();
       ws.send(JSON.stringify({
         type: 'status',
-        content: `Connected to Claude Investments Branch Manager | Mode: ${voteStatus.styleConfig.emoji} ${voteStatus.styleConfig.name}`,
+        content: `Connected to Claude Investments Branch Manager`,
         timestamp: Date.now(),
         model: 'claude-sonnet-4-20250514'
       }));
 
-      // Send current voting state
+      // Send current voting state (keep for backwards compatibility)
       ws.send(JSON.stringify({
         type: 'vote_status',
         ...voteStatus,
         timestamp: Date.now()
       }));
 
+      // Send chat history
+      ws.send(JSON.stringify({
+        type: 'chat_history',
+        messages: this.chatHistory.slice(-50),
+        timestamp: Date.now()
+      }));
+
+      // Send online count
+      this.broadcastOnlineCount();
+
       // Send cached market data immediately (for portfolio chart)
       this.sendMarketDataToClient(ws);
 
-      // Handle incoming messages (questions and votes)
+      // Handle incoming messages
       ws.on('message', (data) => {
         try {
           const message = JSON.parse(data.toString());
@@ -80,11 +105,10 @@ export class ThoughtBroadcaster {
             }));
           }
 
-          // Handle votes
+          // Handle votes (keep for backwards compatibility)
           if (message.type === 'vote' && message.visitorId && message.style) {
             const result = this.votingManager.vote(message.visitorId, message.style as TradingStyle);
 
-            // Send vote confirmation to voter
             ws.send(JSON.stringify({
               type: 'vote_confirmed',
               success: result.success,
@@ -92,8 +116,37 @@ export class ThoughtBroadcaster {
               timestamp: Date.now()
             }));
 
-            // Broadcast updated vote counts to all clients
             this.broadcastVoteStatus();
+          }
+
+          // Handle chat messages
+          if (message.type === 'chat_message' && message.message) {
+            const chatMsg: ChatMessage = {
+              id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              type: 'user',
+              message: `@${message.anonId || 'anon'}: ${message.message.slice(0, 280)}`,
+              timestamp: message.timestamp || Date.now(),
+              anonId: message.anonId,
+            };
+
+            // Add to history and pending queue
+            this.chatHistory.push(chatMsg);
+            this.pendingChatMessages.push(chatMsg);
+
+            // Trim history if needed
+            if (this.chatHistory.length > this.maxChatHistory) {
+              this.chatHistory = this.chatHistory.slice(-this.maxChatHistory);
+            }
+
+            // Broadcast to all clients
+            this.broadcastChatMessage(chatMsg);
+
+            // Confirm to sender
+            ws.send(JSON.stringify({
+              type: 'chat_sent',
+              id: chatMsg.id,
+              timestamp: Date.now()
+            }));
           }
         } catch (error) {
           console.error('Error parsing client message:', error);
@@ -103,6 +156,7 @@ export class ThoughtBroadcaster {
       ws.on('close', () => {
         console.log('Client disconnected');
         this.clients.delete(ws);
+        this.broadcastOnlineCount();
       });
 
       ws.on('error', (error) => {
@@ -221,6 +275,72 @@ export class ThoughtBroadcaster {
 
   getCurrentStylePrompt(): string {
     return this.votingManager.getStylePrompt();
+  }
+
+  // Chat system methods
+  broadcastChatMessage(msg: ChatMessage): void {
+    const message = JSON.stringify({
+      type: 'chat_message',
+      id: msg.id,
+      from: msg.type,
+      message: msg.message,
+      timestamp: msg.timestamp,
+      replyTo: msg.replyTo,
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  broadcastOnlineCount(): void {
+    const message = JSON.stringify({
+      type: 'online_count',
+      count: this.clients.size,
+      timestamp: Date.now()
+    });
+
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  // Get pending chat messages for the agent to respond to
+  getPendingChatMessages(limit: number = 3): ChatMessage[] {
+    // Get up to `limit` messages and clear them from pending
+    const messages = this.pendingChatMessages.slice(0, limit);
+    this.pendingChatMessages = this.pendingChatMessages.slice(limit);
+    return messages;
+  }
+
+  // Check if there are pending messages
+  hasPendingChatMessages(): boolean {
+    return this.pendingChatMessages.length > 0;
+  }
+
+  // Add a bot response to chat
+  addBotResponse(response: string, replyToId?: string): void {
+    const botMsg: ChatMessage = {
+      id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: 'bot',
+      message: response,
+      timestamp: Date.now(),
+      replyTo: replyToId,
+    };
+
+    this.chatHistory.push(botMsg);
+
+    // Trim history if needed
+    if (this.chatHistory.length > this.maxChatHistory) {
+      this.chatHistory = this.chatHistory.slice(-this.maxChatHistory);
+    }
+
+    // Broadcast to all clients
+    this.broadcastChatMessage(botMsg);
   }
 
   // Discovery broadcasts

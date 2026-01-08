@@ -70,6 +70,12 @@ async function main() {
     () => agent.getQueueLength()
   );
 
+  // Wire up chat handlers
+  agent.setChatHandlers(
+    () => broadcaster.getPendingChatMessages(3), // Get up to 3 messages per cycle
+    (response, replyToId) => broadcaster.addBotResponse(response, replyToId)
+  );
+
   agent.setInterval(ANALYSIS_INTERVAL);
 
   // Connect voting system to agent
